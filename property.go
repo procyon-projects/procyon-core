@@ -2,6 +2,7 @@ package core
 
 import (
 	"errors"
+	"log"
 )
 
 type PropertySource interface {
@@ -95,6 +96,66 @@ func (source MapPropertySource) ContainsProperty(name string) bool {
 
 func (source MapPropertySource) GetPropertyNames() []string {
 	return GetMapKeys(source.GetSource())
+}
+
+type CompositePropertySource struct {
+	AbstractEnumerablePropertySource
+	sources []PropertySource
+}
+
+func NewCompositePropertySource(name string) CompositePropertySource {
+	compositePropertySource := CompositePropertySource{
+		AbstractEnumerablePropertySource: NewAbstractEnumerablePropertySourceWithSource(name, nil),
+		sources:                          make([]PropertySource, 0),
+	}
+	compositePropertySource.PropertySource = compositePropertySource
+	compositePropertySource.EnumerablePropertySource = compositePropertySource
+	return compositePropertySource
+}
+
+func (source CompositePropertySource) GetProperty(name string) interface{} {
+	for _, propertySource := range source.sources {
+		property := propertySource.GetProperty(name)
+		if property != nil {
+			return property
+		}
+	}
+	return nil
+}
+
+func (source CompositePropertySource) ContainsProperty(name string) bool {
+	for _, propertySource := range source.sources {
+		if propertySource.ContainsProperty(name) {
+			return true
+		}
+	}
+	return false
+}
+
+func (source CompositePropertySource) GetPropertyNames() []string {
+	names := make([]string, 0)
+	for _, propertySource := range source.sources {
+		if source, ok := propertySource.(EnumerablePropertySource); ok {
+			names = append(names, source.GetPropertyNames()...)
+		} else {
+			log.Fatal("Property source does not support except EnumerablePropertySource")
+		}
+	}
+	return names
+}
+
+func (source CompositePropertySource) AddPropertySource(propertySource PropertySource) {
+	source.sources = append(source.sources, propertySource)
+}
+
+func (source CompositePropertySource) AddFirstPropertySource(propertySource PropertySource) {
+	newPropertySources := make([]PropertySource, 0)
+	newPropertySources[0] = propertySource
+	source.sources = append(newPropertySources, source.sources[0:]...)
+}
+
+func (source CompositePropertySource) GetPropertySources() []PropertySource {
+	return source.sources
 }
 
 type PropertySources struct {
