@@ -1,9 +1,5 @@
 package core
 
-import (
-	"reflect"
-)
-
 type CommandLineArgs struct {
 	optionArgs    map[string][]string
 	nonOptionArgs []string
@@ -24,12 +20,7 @@ func (args *CommandLineArgs) addOptionArgs(name string, value string) {
 }
 
 func (args CommandLineArgs) getOptionNames() []string {
-	argMapKeys := reflect.ValueOf(args.optionArgs).MapKeys()
-	optionNames := make([]string, len(argMapKeys))
-	for i := 0; i < len(argMapKeys); i++ {
-		optionNames[i] = argMapKeys[i].String()
-	}
-	return optionNames
+	return GetMapKeys(args.optionArgs)
 }
 
 func (args CommandLineArgs) containsOption(name string) bool {

@@ -18,20 +18,30 @@ type AbstractCommandLinePropertySource struct {
 	AbstractEnumerablePropertySource
 }
 
-func NewCommandLinePropertySource(source interface{}) AbstractCommandLinePropertySource {
+func NewAbstractCommandLinePropertySource(source interface{}) AbstractCommandLinePropertySource {
 	cmdLinePropertySource := AbstractCommandLinePropertySource{
 		AbstractEnumerablePropertySource: NewAbstractEnumerablePropertySourceWithSource(CmdlinePropertySourceName, source),
 	}
-	cmdLinePropertySource.EnumerablePropertySource = cmdLinePropertySource
 	return cmdLinePropertySource
 }
 
-func NewCommandLinePropertySourceWithName(name string, source interface{}) AbstractCommandLinePropertySource {
+func NewAbstractCommandLinePropertySourceWithName(name string, source interface{}) AbstractCommandLinePropertySource {
 	cmdLinePropertySource := AbstractCommandLinePropertySource{
 		AbstractEnumerablePropertySource: NewAbstractEnumerablePropertySourceWithSource(name, source),
 	}
-	cmdLinePropertySource.EnumerablePropertySource = cmdLinePropertySource
 	return cmdLinePropertySource
+}
+
+func (source AbstractCommandLinePropertySource) ContainsOption(name string) bool {
+	panic("Implement me!. This is an abstract method. AbstractCommandLinePropertySource.ContainsOption(string)")
+}
+
+func (source AbstractCommandLinePropertySource) GetOptionValues(name string) []string {
+	panic("Implement me!. This is an abstract method. AbstractCommandLinePropertySource.GetOptionValues(string)")
+}
+
+func (source AbstractCommandLinePropertySource) GetNonOptionArgs() []string {
+	panic("Implement me!. This is an abstract method. AbstractCommandLinePropertySource.GetNonOptionArgs()")
 }
 
 func (source AbstractCommandLinePropertySource) ContainsProperty(name string) bool {
@@ -66,9 +76,11 @@ func NewSimpleCommandLinePropertySource(args []string) SimpleCommandLineProperty
 		panic(err)
 	}
 	cmdlinePropertySource := SimpleCommandLinePropertySource{
-		AbstractCommandLinePropertySource: NewCommandLinePropertySource(cmdLineArgs),
+		AbstractCommandLinePropertySource: NewAbstractCommandLinePropertySource(cmdLineArgs),
 	}
-	cmdlinePropertySource.AbstractCommandLinePropertySource.CommandLinePropertySource = cmdlinePropertySource
+	cmdlinePropertySource.PropertySource = cmdlinePropertySource
+	cmdlinePropertySource.EnumerablePropertySource = cmdlinePropertySource
+	cmdlinePropertySource.CommandLinePropertySource = cmdlinePropertySource
 	return cmdlinePropertySource
 }
 
@@ -78,9 +90,11 @@ func SimpleCommandLinePropertySourceWithName(name string, args []string) SimpleC
 		panic(err)
 	}
 	cmdlinePropertySource := SimpleCommandLinePropertySource{
-		AbstractCommandLinePropertySource: NewCommandLinePropertySourceWithName(name, cmdLineArgs),
+		AbstractCommandLinePropertySource: NewAbstractCommandLinePropertySourceWithName(name, cmdLineArgs),
 	}
-	cmdlinePropertySource.AbstractCommandLinePropertySource.CommandLinePropertySource = cmdlinePropertySource
+	cmdlinePropertySource.PropertySource = cmdlinePropertySource
+	cmdlinePropertySource.EnumerablePropertySource = cmdlinePropertySource
+	cmdlinePropertySource.CommandLinePropertySource = cmdlinePropertySource
 	return cmdlinePropertySource
 }
 

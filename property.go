@@ -1,6 +1,8 @@
 package core
 
-import "errors"
+import (
+	"errors"
+)
 
 type PropertySource interface {
 	GetName() string
@@ -31,6 +33,14 @@ func (source AbstractPropertySource) GetSource() interface{} {
 	return source.source
 }
 
+func (source AbstractPropertySource) GetProperty(name string) interface{} {
+	panic("Implement me!. This is an abstract method. AbstractPropertySource.GetProperty(string)")
+}
+
+func (source AbstractPropertySource) ContainsProperty(name string) bool {
+	panic("Implement me!. This is an abstract method. AbstractPropertySource.ContainsProperty(string)")
+}
+
 type EnumerablePropertySource interface {
 	GetPropertyNames() []string
 }
@@ -44,17 +54,47 @@ func NewAbstractEnumerablePropertySourceWithSource(name string, source interface
 	propertySource := AbstractEnumerablePropertySource{
 		AbstractPropertySource: NewAbstractPropertySourceWithSource(name, source),
 	}
-	propertySource.PropertySource = propertySource
 	return propertySource
 }
 
+func (source AbstractEnumerablePropertySource) GetPropertyNames() []string {
+	panic("Implement me!. This is an abstract method. AbstractEnumerablePropertySource.GetPropertyNames()")
+}
+
 func (source AbstractEnumerablePropertySource) ContainsProperty(name string) bool {
-	for _, propertyName := range source.GetPropertyNames() {
+	for _, propertyName := range source.EnumerablePropertySource.GetPropertyNames() {
 		if propertyName == name {
 			return true
 		}
 	}
 	return false
+}
+
+type MapPropertySource struct {
+	AbstractEnumerablePropertySource
+}
+
+func NewMapPropertySource(name string, source map[string]interface{}) MapPropertySource {
+	mapPropertySource := MapPropertySource{
+		NewAbstractEnumerablePropertySourceWithSource(name, source),
+	}
+	mapPropertySource.PropertySource = mapPropertySource
+	mapPropertySource.EnumerablePropertySource = mapPropertySource
+	return mapPropertySource
+}
+
+func (source MapPropertySource) GetProperty(name string) interface{} {
+	propertyMap := source.GetSource().(map[string]interface{})
+	return propertyMap[name]
+}
+
+func (source MapPropertySource) ContainsProperty(name string) bool {
+	propertyMap := source.GetSource().(map[string]interface{})
+	return propertyMap[name] != nil
+}
+
+func (source MapPropertySource) GetPropertyNames() []string {
+	return GetMapKeys(source.GetSource())
 }
 
 type PropertySources struct {

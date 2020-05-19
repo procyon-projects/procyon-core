@@ -2,6 +2,7 @@ package core
 
 import (
 	"errors"
+	"reflect"
 	"time"
 )
 
@@ -46,4 +47,13 @@ func (watch *TaskWatch) IsRunning() bool {
 
 func (watch *TaskWatch) GetTotalTime() int64 {
 	return watch.totalTime
+}
+
+func GetMapKeys(mapObj interface{}) []string {
+	argMapKeys := reflect.ValueOf(mapObj).MapKeys()
+	mapKeys := make([]string, len(argMapKeys))
+	for i := 0; i < len(argMapKeys); i++ {
+		mapKeys[i] = argMapKeys[i].String()
+	}
+	return mapKeys
 }
