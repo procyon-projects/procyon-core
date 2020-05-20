@@ -3,7 +3,6 @@ module github.com/Rollcomp/procyon-core
 go 1.13
 
 require (
-	github.com/codnect/go-one v0.0.0-20200119222923-a2229e1e905b // indirect
-	github.com/codnect/go-reflect v0.0.0-20200128204814-2eb4070700ed
+	github.com/Rollcomp/procyon-context v0.0.0-20200519223205-6438a266c10e
 	github.com/stretchr/testify v1.5.1
 )

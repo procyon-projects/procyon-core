@@ -1,8 +1,6 @@
 package core
 
-import (
-	"strings"
-)
+import "strings"
 
 const CmdlinePropertySourceName = "cmdlineArgs"
 const NonOptionArgsPropertyName = "nonOptionArgs"
@@ -13,61 +11,9 @@ type CommandLinePropertySource interface {
 	GetNonOptionArgs() []string
 }
 
-type AbstractCommandLinePropertySource struct {
-	CommandLinePropertySource
-	AbstractEnumerablePropertySource
-}
-
-func NewAbstractCommandLinePropertySource(source interface{}) AbstractCommandLinePropertySource {
-	cmdLinePropertySource := AbstractCommandLinePropertySource{
-		AbstractEnumerablePropertySource: NewAbstractEnumerablePropertySourceWithSource(CmdlinePropertySourceName, source),
-	}
-	return cmdLinePropertySource
-}
-
-func NewAbstractCommandLinePropertySourceWithName(name string, source interface{}) AbstractCommandLinePropertySource {
-	cmdLinePropertySource := AbstractCommandLinePropertySource{
-		AbstractEnumerablePropertySource: NewAbstractEnumerablePropertySourceWithSource(name, source),
-	}
-	return cmdLinePropertySource
-}
-
-func (source AbstractCommandLinePropertySource) ContainsOption(name string) bool {
-	panic("Implement me!. This is an abstract method. AbstractCommandLinePropertySource.ContainsOption(string)")
-}
-
-func (source AbstractCommandLinePropertySource) GetOptionValues(name string) []string {
-	panic("Implement me!. This is an abstract method. AbstractCommandLinePropertySource.GetOptionValues(string)")
-}
-
-func (source AbstractCommandLinePropertySource) GetNonOptionArgs() []string {
-	panic("Implement me!. This is an abstract method. AbstractCommandLinePropertySource.GetNonOptionArgs()")
-}
-
-func (source AbstractCommandLinePropertySource) ContainsProperty(name string) bool {
-	if NonOptionArgsPropertyName == name {
-		return len(source.CommandLinePropertySource.GetNonOptionArgs()) != 0
-	}
-	return source.CommandLinePropertySource.ContainsOption(name)
-}
-
-func (source AbstractCommandLinePropertySource) GetProperty(name string) interface{} {
-	if NonOptionArgsPropertyName == name {
-		nonOptValues := source.CommandLinePropertySource.GetNonOptionArgs()
-		if nonOptValues != nil {
-			return strings.Join(nonOptValues, ",")
-		}
-		return nil
-	}
-	optValues := source.CommandLinePropertySource.GetOptionValues(name)
-	if optValues != nil {
-		return strings.Join(optValues, ",")
-	}
-	return nil
-}
-
 type SimpleCommandLinePropertySource struct {
-	AbstractCommandLinePropertySource
+	name   string
+	source CommandLineArgs
 }
 
 func NewSimpleCommandLinePropertySource(args []string) SimpleCommandLinePropertySource {
@@ -76,11 +22,8 @@ func NewSimpleCommandLinePropertySource(args []string) SimpleCommandLineProperty
 		panic(err)
 	}
 	cmdlinePropertySource := SimpleCommandLinePropertySource{
-		AbstractCommandLinePropertySource: NewAbstractCommandLinePropertySource(cmdLineArgs),
+		source: cmdLineArgs,
 	}
-	cmdlinePropertySource.PropertySource = cmdlinePropertySource
-	cmdlinePropertySource.EnumerablePropertySource = cmdlinePropertySource
-	cmdlinePropertySource.CommandLinePropertySource = cmdlinePropertySource
 	return cmdlinePropertySource
 }
 
@@ -90,30 +33,54 @@ func SimpleCommandLinePropertySourceWithName(name string, args []string) SimpleC
 		panic(err)
 	}
 	cmdlinePropertySource := SimpleCommandLinePropertySource{
-		AbstractCommandLinePropertySource: NewAbstractCommandLinePropertySourceWithName(name, cmdLineArgs),
+		name:   name,
+		source: cmdLineArgs,
 	}
-	cmdlinePropertySource.PropertySource = cmdlinePropertySource
-	cmdlinePropertySource.EnumerablePropertySource = cmdlinePropertySource
-	cmdlinePropertySource.CommandLinePropertySource = cmdlinePropertySource
 	return cmdlinePropertySource
 }
 
-func (source SimpleCommandLinePropertySource) ContainsOption(name string) bool {
-	cmdLineArgs := source.GetSource().(CommandLineArgs)
-	return cmdLineArgs.containsOption(name)
+func (cmdLineSource SimpleCommandLinePropertySource) GetName() string {
+	return cmdLineSource.name
 }
 
-func (source SimpleCommandLinePropertySource) GetOptionValues(name string) []string {
-	cmdLineArgs := source.GetSource().(CommandLineArgs)
-	return cmdLineArgs.getOptionValues(name)
+func (cmdLineSource SimpleCommandLinePropertySource) GetSource() interface{} {
+	return cmdLineSource.source
 }
 
-func (source SimpleCommandLinePropertySource) GetNonOptionArgs() []string {
-	cmdLineArgs := source.GetSource().(CommandLineArgs)
-	return cmdLineArgs.getNonOptionArgs()
+func (cmdLineSource SimpleCommandLinePropertySource) GetProperty(name string) interface{} {
+	if NonOptionArgsPropertyName == name {
+		nonOptValues := cmdLineSource.GetNonOptionArgs()
+		if nonOptValues != nil {
+			return strings.Join(nonOptValues, ",")
+		}
+		return nil
+	}
+	optValues := cmdLineSource.GetOptionValues(name)
+	if optValues != nil {
+		return strings.Join(optValues, ",")
+	}
+	return nil
 }
 
-func (source SimpleCommandLinePropertySource) GetPropertyNames() []string {
-	cmdLineArgs := source.GetSource().(CommandLineArgs)
-	return cmdLineArgs.getOptionNames()
+func (cmdLineSource SimpleCommandLinePropertySource) ContainsProperty(name string) bool {
+	if NonOptionArgsPropertyName == name {
+		return len(cmdLineSource.GetNonOptionArgs()) != 0
+	}
+	return cmdLineSource.ContainsOption(name)
+}
+
+func (cmdLineSource SimpleCommandLinePropertySource) ContainsOption(name string) bool {
+	return cmdLineSource.source.containsOption(name)
+}
+
+func (cmdLineSource SimpleCommandLinePropertySource) GetOptionValues(name string) []string {
+	return cmdLineSource.source.getOptionValues(name)
+}
+
+func (cmdLineSource SimpleCommandLinePropertySource) GetNonOptionArgs() []string {
+	return cmdLineSource.source.getNonOptionArgs()
+}
+
+func (cmdLineSource SimpleCommandLinePropertySource) GetPropertyNames() []string {
+	return cmdLineSource.source.getOptionNames()
 }

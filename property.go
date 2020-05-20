@@ -12,109 +12,67 @@ type PropertySource interface {
 	ContainsProperty(name string) bool
 }
 
-type AbstractPropertySource struct {
-	PropertySource
-	name   string
-	source interface{}
-}
-
-func NewAbstractPropertySourceWithSource(name string, source interface{}) AbstractPropertySource {
-	propertySource := AbstractPropertySource{
-		name:   name,
-		source: source,
-	}
-	return propertySource
-}
-
-func (source AbstractPropertySource) GetName() string {
-	return source.name
-}
-
-func (source AbstractPropertySource) GetSource() interface{} {
-	return source.source
-}
-
-func (source AbstractPropertySource) GetProperty(name string) interface{} {
-	panic("Implement me!. This is an abstract method. AbstractPropertySource.GetProperty(string)")
-}
-
-func (source AbstractPropertySource) ContainsProperty(name string) bool {
-	panic("Implement me!. This is an abstract method. AbstractPropertySource.ContainsProperty(string)")
-}
-
 type EnumerablePropertySource interface {
+	PropertySource
 	GetPropertyNames() []string
 }
 
-type AbstractEnumerablePropertySource struct {
-	EnumerablePropertySource
-	AbstractPropertySource
-}
-
-func NewAbstractEnumerablePropertySourceWithSource(name string, source interface{}) AbstractEnumerablePropertySource {
-	propertySource := AbstractEnumerablePropertySource{
-		AbstractPropertySource: NewAbstractPropertySourceWithSource(name, source),
-	}
-	return propertySource
-}
-
-func (source AbstractEnumerablePropertySource) GetPropertyNames() []string {
-	panic("Implement me!. This is an abstract method. AbstractEnumerablePropertySource.GetPropertyNames()")
-}
-
-func (source AbstractEnumerablePropertySource) ContainsProperty(name string) bool {
-	for _, propertyName := range source.EnumerablePropertySource.GetPropertyNames() {
-		if propertyName == name {
-			return true
-		}
-	}
-	return false
-}
-
 type MapPropertySource struct {
-	AbstractEnumerablePropertySource
+	name   string
+	source map[string]interface{}
 }
 
 func NewMapPropertySource(name string, source map[string]interface{}) MapPropertySource {
 	mapPropertySource := MapPropertySource{
-		NewAbstractEnumerablePropertySourceWithSource(name, source),
+		name:   name,
+		source: source,
 	}
-	mapPropertySource.PropertySource = mapPropertySource
-	mapPropertySource.EnumerablePropertySource = mapPropertySource
 	return mapPropertySource
 }
 
-func (source MapPropertySource) GetProperty(name string) interface{} {
-	propertyMap := source.GetSource().(map[string]interface{})
-	return propertyMap[name]
+func (mapSource MapPropertySource) GetName() string {
+	return mapSource.name
 }
 
-func (source MapPropertySource) ContainsProperty(name string) bool {
-	propertyMap := source.GetSource().(map[string]interface{})
-	return propertyMap[name] != nil
+func (mapSource MapPropertySource) GetSource() interface{} {
+	return mapSource.source
 }
 
-func (source MapPropertySource) GetPropertyNames() []string {
-	return GetMapKeys(source.GetSource())
+func (mapSource MapPropertySource) GetProperty(name string) interface{} {
+	return mapSource.source[name]
+}
+
+func (mapSource MapPropertySource) ContainsProperty(name string) bool {
+	return mapSource.source[name] != nil
+}
+
+func (mapSource MapPropertySource) GetPropertyNames() []string {
+	return GetMapKeys(mapSource.source)
 }
 
 type CompositePropertySource struct {
-	AbstractEnumerablePropertySource
+	name    string
 	sources []PropertySource
 }
 
 func NewCompositePropertySource(name string) CompositePropertySource {
 	compositePropertySource := CompositePropertySource{
-		AbstractEnumerablePropertySource: NewAbstractEnumerablePropertySourceWithSource(name, nil),
-		sources:                          make([]PropertySource, 0),
+		name:    name,
+		sources: make([]PropertySource, 0),
 	}
-	compositePropertySource.PropertySource = compositePropertySource
-	compositePropertySource.EnumerablePropertySource = compositePropertySource
 	return compositePropertySource
 }
 
-func (source CompositePropertySource) GetProperty(name string) interface{} {
-	for _, propertySource := range source.sources {
+func (compositeSource CompositePropertySource) GetName() string {
+	return compositeSource.name
+}
+
+func (compositeSource CompositePropertySource) GetSource() interface{} {
+	return compositeSource.sources
+}
+
+func (compositeSource CompositePropertySource) GetProperty(name string) interface{} {
+	for _, propertySource := range compositeSource.sources {
 		property := propertySource.GetProperty(name)
 		if property != nil {
 			return property
@@ -123,8 +81,8 @@ func (source CompositePropertySource) GetProperty(name string) interface{} {
 	return nil
 }
 
-func (source CompositePropertySource) ContainsProperty(name string) bool {
-	for _, propertySource := range source.sources {
+func (compositeSource CompositePropertySource) ContainsProperty(name string) bool {
+	for _, propertySource := range compositeSource.sources {
 		if propertySource.ContainsProperty(name) {
 			return true
 		}
@@ -132,9 +90,9 @@ func (source CompositePropertySource) ContainsProperty(name string) bool {
 	return false
 }
 
-func (source CompositePropertySource) GetPropertyNames() []string {
+func (compositeSource CompositePropertySource) GetPropertyNames() []string {
 	names := make([]string, 0)
-	for _, propertySource := range source.sources {
+	for _, propertySource := range compositeSource.sources {
 		if source, ok := propertySource.(EnumerablePropertySource); ok {
 			names = append(names, source.GetPropertyNames()...)
 		} else {
@@ -144,18 +102,18 @@ func (source CompositePropertySource) GetPropertyNames() []string {
 	return names
 }
 
-func (source CompositePropertySource) AddPropertySource(propertySource PropertySource) {
-	source.sources = append(source.sources, propertySource)
+func (compositeSource CompositePropertySource) AddPropertySource(propertySource PropertySource) {
+	compositeSource.sources = append(compositeSource.sources, propertySource)
 }
 
-func (source CompositePropertySource) AddFirstPropertySource(propertySource PropertySource) {
+func (compositeSource CompositePropertySource) AddFirstPropertySource(propertySource PropertySource) {
 	newPropertySources := make([]PropertySource, 0)
 	newPropertySources[0] = propertySource
-	source.sources = append(newPropertySources, source.sources[0:]...)
+	compositeSource.sources = append(newPropertySources, compositeSource.sources[0:]...)
 }
 
-func (source CompositePropertySource) GetPropertySources() []PropertySource {
-	return source.sources
+func (compositeSource CompositePropertySource) GetPropertySources() []PropertySource {
+	return compositeSource.sources
 }
 
 type PropertySources struct {
