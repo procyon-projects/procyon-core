@@ -1,4 +1,4 @@
-package event
+package core
 
 type ApplicationListener interface {
 	SubscribeEvents() []ApplicationEvent

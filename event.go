@@ -1,4 +1,4 @@
-package event
+package core
 
 import (
 	context "github.com/Rollcomp/procyon-context"
