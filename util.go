@@ -74,7 +74,7 @@ func sanitizedName(str string) string {
 	return name
 }
 
-func getStructName(typ Type) string {
+func getStructName(typ *Type) string {
 	if isStruct(typ) {
 		name := sanitizedName(typ.Typ.PkgPath())
 		name = name + componentStructSeparator + typ.Typ.Name()
@@ -91,7 +91,7 @@ func getFunctionName(component Component) string {
 	return name
 }
 
-func GetType(component Component) Type {
+func GetType(component Component) *Type {
 	typ := reflect.TypeOf(component)
 	if typ == nil {
 		log.Fatal("Type cannot be determined.")
@@ -103,7 +103,7 @@ func GetType(component Component) Type {
 	if val.Kind() == reflect.Ptr {
 		val = val.Elem()
 	}
-	return Type{
+	return &Type{
 		Typ: typ,
 		Val: val,
 	}
@@ -113,7 +113,7 @@ func getFullFunctionName(i interface{}) string {
 	return runtime.FuncForPC(reflect.ValueOf(i).Pointer()).Name()
 }
 
-func getFuncReturnType(typ Type) Type {
+func getFuncReturnType(typ *Type) *Type {
 	returnType := typ.Typ.Out(0)
 	if returnType.Kind() == reflect.Ptr {
 		returnType = returnType.Elem()
@@ -122,29 +122,29 @@ func getFuncReturnType(typ Type) Type {
 	if val.Kind() == reflect.Ptr {
 		val = val.Elem()
 	}
-	return Type{
+	return &Type{
 		Typ: returnType,
 		Val: val,
 	}
 }
 
-func isStruct(typ Type) bool {
+func isStruct(typ *Type) bool {
 	return typ.Typ.Kind() == reflect.Struct
 }
 
-func isFunc(typ Type) bool {
+func isFunc(typ *Type) bool {
 	return typ.Typ.Kind() == reflect.Func
 }
 
-func isInterface(typ Type) bool {
+func isInterface(typ *Type) bool {
 	return typ.Typ.Kind() == reflect.Interface
 }
 
-func getNumField(typ Type) int {
+func getNumField(typ *Type) int {
 	return typ.Typ.NumField()
 }
 
-func getFieldByIndex(typ Type, index int) reflect.StructField {
+func getFieldByIndex(typ *Type, index int) reflect.StructField {
 	return typ.Typ.Field(index)
 }
 
@@ -152,13 +152,13 @@ func isAnonymous(typ reflect.StructField) bool {
 	return typ.Anonymous
 }
 
-func getTypeFromStructField(field reflect.StructField) Type {
-	return Type{
+func getTypeFromStructField(field reflect.StructField) *Type {
+	return &Type{
 		Typ: field.Type,
 	}
 }
 
-func isEmbeddedStruct(parentStructType Type, childStructType Type) bool {
+func isEmbeddedStruct(parentStructType *Type, childStructType *Type) bool {
 	childMethodNum := getNumField(childStructType)
 	for index := 0; index < childMethodNum; index++ {
 		field := getFieldByIndex(childStructType, index)

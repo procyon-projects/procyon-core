@@ -8,7 +8,7 @@ const componentFunctionSeparator = "#"
 const componentStructSeparator = "$"
 
 var (
-	componentTypes = make(map[string]Type, 0)
+	componentTypes = make(map[string]*Type, 0)
 )
 
 func Register(components ...Component) {
@@ -23,9 +23,9 @@ func Register(components ...Component) {
 	}
 }
 
-func registerComponentType(name string, typ Type) {
+func registerComponentType(name string, typ *Type) {
 	if isFunc(typ) && (typ.Typ.NumOut() > 1 || typ.Typ.NumOut() == 0) {
-		log.Fatal("Constructor functions are only supported, that why's your function must have only one return type")
+		log.Fatal("Constructor functions are only supported, that why's your function must have only one return type : " + name)
 	}
 	if _, ok := componentTypes[name]; ok {
 		log.Fatal("You have already registered the same component : " + name)
@@ -33,11 +33,11 @@ func registerComponentType(name string, typ Type) {
 	componentTypes[name] = typ
 }
 
-func isSupportComponent(typ Type) bool {
+func isSupportComponent(typ *Type) bool {
 	if isFunc(typ) {
 		retType := getFuncReturnType(typ)
 		if !isStruct(retType) {
-			log.Fatal("Constructor functions must only return struct instances.")
+			log.Fatal("Constructor functions must only return struct instances : " + retType.Typ.String())
 		}
 		return true
 	}
@@ -55,8 +55,11 @@ func getComponentName(component Component) string {
 	return name
 }
 
-func GetComponentTypes(typ Type) []Type {
-	result := make([]Type, 0)
+func GetComponentTypes(typ *Type) []*Type {
+	if typ == nil {
+		log.Fatal("Type must not be null")
+	}
+	result := make([]*Type, 0)
 	for key, componentType := range componentTypes {
 		log.Printf(key)
 		if isFunc(componentType) {
