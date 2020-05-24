@@ -64,7 +64,7 @@ func GetComponentTypes(typ Type) []Type {
 			funcReturnType.Typ.ConvertibleTo(typ.Typ)
 			if isInterface(typ) && funcReturnType.Typ.Implements(typ.Typ) {
 				result = append(result, componentType)
-			} else if isStruct(typ) && (typ == funcReturnType || isEmbeddedStruct(typ, funcReturnType)) {
+			} else if isStruct(typ) && (typ.Typ == funcReturnType.Typ || isEmbeddedStruct(typ, funcReturnType)) {
 				result = append(result, componentType)
 			}
 		} else if isStruct(componentType) {
