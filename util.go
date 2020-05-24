@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"runtime"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -172,4 +173,52 @@ func isEmbeddedStruct(parentStructType Type, childStructType Type) bool {
 		}
 	}
 	return false
+}
+
+type SyncMap struct {
+	syncMap map[interface{}]interface{}
+	mu      sync.RWMutex
+}
+
+func NewSyncMap() SyncMap {
+	return SyncMap{
+		syncMap: make(map[interface{}]interface{}, 0),
+		mu:      sync.RWMutex{},
+	}
+}
+
+func (m SyncMap) Get(key interface{}) interface{} {
+	m.mu.Lock()
+	v, ok := m.syncMap[key]
+	if ok {
+		return v
+	}
+	m.mu.Unlock()
+	return nil
+}
+
+func (m SyncMap) Put(key interface{}, value interface{}) {
+	m.mu.Lock()
+	m.syncMap[key] = value
+	m.mu.Unlock()
+}
+
+func (m SyncMap) Remove(key interface{}) {
+	m.mu.Lock()
+	_, ok := m.syncMap[key]
+	if ok {
+		delete(m.syncMap, key)
+	}
+	m.mu.Unlock()
+}
+
+func (m SyncMap) KeySet() interface{} {
+	m.mu.Lock()
+	argMapKeys := reflect.ValueOf(m.syncMap).MapKeys()
+	mapKeys := make([]string, len(argMapKeys))
+	for i := 0; i < len(argMapKeys); i++ {
+		mapKeys[i] = argMapKeys[i].String()
+	}
+	m.mu.Unlock()
+	return mapKeys
 }
