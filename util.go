@@ -6,7 +6,6 @@ import (
 	"reflect"
 	"runtime"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -63,32 +62,13 @@ func GetMapKeys(mapObj interface{}) []string {
 }
 
 type Type struct {
-	Typ reflect.Type
-	Val reflect.Value
+	Typ  reflect.Type
+	Val  reflect.Value
+	name string
 }
 
-func sanitizedName(str string) string {
-	name := strings.ReplaceAll(str, "/", ".")
-	name = strings.ReplaceAll(name, "-", ".")
-	name = strings.ReplaceAll(name, "_", ".")
-	return name
-}
-
-func getStructName(typ *Type) string {
-	if isStruct(typ) {
-		name := sanitizedName(typ.Typ.PkgPath())
-		name = name + componentStructSeparator + typ.Typ.Name()
-		return name
-	}
-	return "<nil>"
-}
-
-func getFunctionName(component Component) string {
-	funcFullName := getFullFunctionName(component)
-	lastIndexForDot := strings.LastIndex(funcFullName, ".")
-	funcFullName = funcFullName[0:lastIndexForDot] + componentFunctionSeparator + funcFullName[lastIndexForDot+1:]
-	name := sanitizedName(funcFullName)
-	return name
+func (typ *Type) String() string {
+	return typ.name
 }
 
 func GetType(component Component) *Type {
@@ -103,17 +83,77 @@ func GetType(component Component) *Type {
 	if val.Kind() == reflect.Ptr {
 		val = val.Elem()
 	}
-	return &Type{
+	result := &Type{
 		Typ: typ,
 		Val: val,
 	}
+	var name string
+	if IsFunc(result) {
+		returnTypeNames := GetFunctionReturnTypeNames(result)
+		if len(returnTypeNames) == 1 {
+			name = returnTypeNames[0]
+		}
+	} else {
+		name = GetTypeName(result)
+	}
+	result.name = name
+	return result
 }
 
-func getFullFunctionName(i interface{}) string {
+func sanitizedName(str string) string {
+	name := strings.ReplaceAll(str, "/", ".")
+	name = strings.ReplaceAll(name, "-", ".")
+	name = strings.ReplaceAll(name, "_", ".")
+	return name
+}
+
+func getTypeBaseName(typ reflect.Type) string {
+	name := sanitizedName(typ.PkgPath())
+	if name != "" {
+		name = name + "." + typ.Name()
+	} else {
+		name = typ.Name()
+	}
+	return name
+}
+
+func GetTypeName(typ *Type) string {
+	if typ == nil {
+		panic("it must not be null")
+	}
+	if typ.Typ.Kind() == reflect.Func {
+		panic("Must use core.GetFunctionReturnTypeNames for functions")
+	}
+	return getTypeBaseName(typ.Typ)
+}
+
+func GetFunctionReturnParamCount(typ *Type) int {
+	if typ == nil {
+		panic("it must not be null")
+	}
+	if typ.Typ.Kind() != reflect.Func {
+		panic("You cannot use it except function")
+	}
+	return typ.Typ.NumOut()
+}
+
+func GetFunctionReturnTypeNames(typ *Type) []string {
+	if typ.Typ.Kind() != reflect.Func {
+		panic("It is not function type")
+	}
+	typeNames := make([]string, 0)
+	returnTypeCount := typ.Typ.NumOut()
+	for index := 0; index < returnTypeCount; index++ {
+		typeNames = append(typeNames, getTypeBaseName(typ.Typ.Out(index)))
+	}
+	return typeNames
+}
+
+func GetFullFunctionName(i interface{}) string {
 	return runtime.FuncForPC(reflect.ValueOf(i).Pointer()).Name()
 }
 
-func getFuncReturnType(typ *Type) *Type {
+func GetFunctionFirstReturnType(typ *Type) *Type {
 	returnType := typ.Typ.Out(0)
 	if returnType.Kind() == reflect.Ptr {
 		returnType = returnType.Elem()
@@ -128,97 +168,67 @@ func getFuncReturnType(typ *Type) *Type {
 	}
 }
 
-func isStruct(typ *Type) bool {
+func IsStruct(typ *Type) bool {
+	if typ == nil {
+		panic("it must not be null")
+	}
 	return typ.Typ.Kind() == reflect.Struct
 }
 
-func isFunc(typ *Type) bool {
+func IsFunc(typ *Type) bool {
+	if typ == nil {
+		panic("it must not be null")
+	}
 	return typ.Typ.Kind() == reflect.Func
 }
 
-func isInterface(typ *Type) bool {
+func IsInterface(typ *Type) bool {
+	if typ == nil {
+		panic("it must not be null")
+	}
 	return typ.Typ.Kind() == reflect.Interface
 }
 
-func getNumField(typ *Type) int {
+func GetNumField(typ *Type) int {
+	if typ == nil {
+		panic("it must not be null")
+	}
 	return typ.Typ.NumField()
 }
 
-func getFieldByIndex(typ *Type, index int) reflect.StructField {
+func GetFieldByIndex(typ *Type, index int) reflect.StructField {
+	if typ == nil {
+		panic("it must not be null")
+	}
 	return typ.Typ.Field(index)
 }
 
-func isAnonymous(typ reflect.StructField) bool {
+func IsAnonymous(typ reflect.StructField) bool {
 	return typ.Anonymous
 }
 
-func getTypeFromStructField(field reflect.StructField) *Type {
+func GetTypeFromStructField(field reflect.StructField) *Type {
 	return &Type{
 		Typ: field.Type,
 	}
 }
 
-func isEmbeddedStruct(parentStructType *Type, childStructType *Type) bool {
-	childMethodNum := getNumField(childStructType)
+func IsEmbeddedStruct(parentStructType *Type, childStructType *Type) bool {
+	if parentStructType == nil || childStructType == nil {
+		panic("it must not be null")
+	}
+	childMethodNum := GetNumField(childStructType)
 	for index := 0; index < childMethodNum; index++ {
-		field := getFieldByIndex(childStructType, index)
-		fieldTyp := getTypeFromStructField(field)
-		if isAnonymous(field) && isStruct(fieldTyp) {
-			if getStructName(fieldTyp) == getStructName(parentStructType) {
+		field := GetFieldByIndex(childStructType, index)
+		fieldTyp := GetTypeFromStructField(field)
+		if IsAnonymous(field) && IsStruct(fieldTyp) {
+			if GetTypeName(fieldTyp) == GetTypeName(parentStructType) {
 				return true
 			}
-			if getNumField(fieldTyp) > 0 {
-				return isEmbeddedStruct(parentStructType, fieldTyp)
+			if GetNumField(fieldTyp) > 0 {
+				return IsEmbeddedStruct(parentStructType, fieldTyp)
 			}
 		}
 	}
 	return false
-}
-
-type SyncMap struct {
-	syncMap map[interface{}]interface{}
-	mu      sync.RWMutex
-}
-
-func NewSyncMap() SyncMap {
-	return SyncMap{
-		syncMap: make(map[interface{}]interface{}, 0),
-		mu:      sync.RWMutex{},
-	}
-}
-
-func (m SyncMap) Get(key interface{}) interface{} {
-	m.mu.Lock()
-	v, ok := m.syncMap[key]
-	if ok {
-		return v
-	}
-	m.mu.Unlock()
-	return nil
-}
-
-func (m SyncMap) Put(key interface{}, value interface{}) {
-	m.mu.Lock()
-	m.syncMap[key] = value
-	m.mu.Unlock()
-}
-
-func (m SyncMap) Remove(key interface{}) {
-	m.mu.Lock()
-	_, ok := m.syncMap[key]
-	if ok {
-		delete(m.syncMap, key)
-	}
-	m.mu.Unlock()
-}
-
-func (m SyncMap) KeySet() interface{} {
-	m.mu.Lock()
-	argMapKeys := reflect.ValueOf(m.syncMap).MapKeys()
-	mapKeys := make([]string, len(argMapKeys))
-	for i := 0; i < len(argMapKeys); i++ {
-		mapKeys[i] = argMapKeys[i].String()
-	}
-	m.mu.Unlock()
-	return mapKeys
 }
