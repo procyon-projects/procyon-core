@@ -71,15 +71,15 @@ func (typ *Type) String() string {
 	return typ.name
 }
 
-func GetType(component Component) *Type {
-	typ := reflect.TypeOf(component)
+func GetType(obj interface{}) *Type {
+	typ := reflect.TypeOf(obj)
 	if typ == nil {
 		log.Fatal("Type cannot be determined.")
 	}
 	if typ.Kind() == reflect.Ptr {
 		typ = typ.Elem()
 	}
-	val := reflect.ValueOf(component)
+	val := reflect.ValueOf(obj)
 	if val.Kind() == reflect.Ptr {
 		val = val.Elem()
 	}
