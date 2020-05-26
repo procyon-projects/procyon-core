@@ -55,7 +55,7 @@ func GetComponentTypesWithParam(typ *Type, paramTypes []*Type) []*Type {
 					result = append(result, componentType)
 				}
 			} else if IsStruct(typ) && (typ.Typ == funcReturnType.Typ) {
-				if HasFunctionSameParametersWithGivenParameters(typ, paramTypes) {
+				if HasFunctionSameParametersWithGivenParameters(componentType, paramTypes) {
 					result = append(result, componentType)
 				}
 			} else if IsStruct(typ) && IsEmbeddedStruct(typ, funcReturnType) {
