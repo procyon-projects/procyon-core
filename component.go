@@ -54,7 +54,9 @@ func GetComponentTypesWithParam(typ *Type, paramTypes []*Type) []*Type {
 		if IsFunc(componentType) {
 			funcReturnType := GetFunctionFirstReturnType(componentType)
 			if IsInterface(typ) && funcReturnType.Typ.Implements(typ.Typ) {
-				result = append(result, componentType)
+				if HasFunctionSameParametersWithGivenParameters(componentType, paramTypes) {
+					result = append(result, componentType)
+				}
 			} else if IsStruct(typ) && (typ.Typ == funcReturnType.Typ) {
 				if HasFunctionSameParametersWithGivenParameters(typ, paramTypes) {
 					result = append(result, componentType)
