@@ -46,9 +46,6 @@ func GetComponentTypesWithParam(typ *Type, paramTypes []*Type) []*Type {
 	if typ == nil {
 		panic("Type must not be null")
 	}
-	if !IsFunc(typ) && len(paramTypes) > 0 {
-		panic("Param types are only supported for constructor functions")
-	}
 	result := make([]*Type, 0)
 	for _, componentType := range componentTypes {
 		if IsFunc(componentType) {
