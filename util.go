@@ -159,20 +159,24 @@ func GetFunctionReturnTypeNames(typ *Type) []string {
 	return typeNames
 }
 
-func GetFunctionInputTypeNames(typ *Type) []string {
-	if typ.Typ.Kind() != reflect.Func {
-		panic("It is not function type")
-	}
-	typeNames := make([]string, 0)
-	returnTypeCount := typ.Typ.NumIn()
-	for index := 0; index < returnTypeCount; index++ {
-		typeNames = append(typeNames, getTypeBaseName(typ.Typ.In(index)))
-	}
-	return typeNames
-}
-
 func GetFullFunctionName(i interface{}) string {
 	return runtime.FuncForPC(reflect.ValueOf(i).Pointer()).Name()
+}
+
+func GetFunctionInputTypes(typ *Type) []*Type {
+	if typ == nil {
+		panic("it must not be null")
+	}
+	inputParameterCount := typ.Typ.NumIn()
+	inputTypes := make([]*Type, inputParameterCount)
+	for index := 0; index < inputParameterCount; index++ {
+		typ := &Type{
+			Typ:  typ.Typ.In(index),
+			name: getTypeBaseName(typ.Typ.In(index)),
+		}
+		inputTypes = append(inputTypes, typ)
+	}
+	return inputTypes
 }
 
 func GetFunctionFirstReturnType(typ *Type) *Type {
@@ -261,9 +265,9 @@ func HasFunctionSameParametersWithGivenParameters(typ *Type, parameters []*Type)
 	if len(parameters) != functionParameterCount {
 		return false
 	}
-	inputTypeNames := GetFunctionInputTypeNames(typ)
+	inputTypeNames := GetFunctionInputTypeNames()
 	for index, inputTypeName := range inputTypeNames {
-		if parameters[index].String() != inputTypeName {
+		if parameters[index] != inputTypeName {
 			return false
 		}
 	}
