@@ -50,16 +50,12 @@ func GetComponentTypesWithParam(typ *Type, paramTypes []*Type) []*Type {
 	for _, componentType := range componentTypes {
 		if IsFunc(componentType) {
 			funcReturnType := GetFunctionFirstReturnType(componentType)
-			if IsInterface(typ) && funcReturnType.Typ.Implements(typ.Typ) {
+			if (IsInterface(typ) && funcReturnType.Typ.Implements(typ.Typ)) ||
+				(IsStruct(typ) && (typ.Typ == funcReturnType.Typ)) ||
+				(IsStruct(typ) && IsEmbeddedStruct(typ, funcReturnType)) {
 				if HasFunctionSameParametersWithGivenParameters(componentType, paramTypes) {
 					result = append(result, componentType)
 				}
-			} else if IsStruct(typ) && (typ.Typ == funcReturnType.Typ) {
-				if HasFunctionSameParametersWithGivenParameters(componentType, paramTypes) {
-					result = append(result, componentType)
-				}
-			} else if IsStruct(typ) && IsEmbeddedStruct(typ, funcReturnType) {
-				result = append(result, componentType)
 			}
 		} else if IsStruct(componentType) {
 			if IsStruct(typ) && (typ == componentType || IsEmbeddedStruct(typ, componentType)) {
