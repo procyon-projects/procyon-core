@@ -185,8 +185,9 @@ func GetFunctionFirstReturnType(typ *Type) *Type {
 		val = val.Elem()
 	}
 	return &Type{
-		Typ: returnType,
-		Val: val,
+		Typ:  returnType,
+		Val:  val,
+		name: getTypeBaseName(returnType),
 	}
 }
 
