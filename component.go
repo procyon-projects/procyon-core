@@ -39,8 +39,15 @@ func isSupportComponent(typ *Type) bool {
 }
 
 func GetComponentTypes(typ *Type) []*Type {
+	return GetComponentTypesWithParam(typ, nil)
+}
+
+func GetComponentTypesWithParam(typ *Type, paramTypes []*Type) []*Type {
 	if typ == nil {
 		panic("Type must not be null")
+	}
+	if !IsFunc(typ) && len(paramTypes) > 0 {
+		panic("Param types are only supported for constructor functions")
 	}
 	result := make([]*Type, 0)
 	for _, componentType := range componentTypes {
@@ -48,7 +55,11 @@ func GetComponentTypes(typ *Type) []*Type {
 			funcReturnType := GetFunctionFirstReturnType(componentType)
 			if IsInterface(typ) && funcReturnType.Typ.Implements(typ.Typ) {
 				result = append(result, componentType)
-			} else if IsStruct(typ) && (typ.Typ == funcReturnType.Typ || IsEmbeddedStruct(typ, funcReturnType)) {
+			} else if IsStruct(typ) && (typ.Typ == funcReturnType.Typ) {
+				if HasFunctionSameParametersWithGivenParameters(typ, paramTypes) {
+					result = append(result, componentType)
+				}
+			} else if IsStruct(typ) && IsEmbeddedStruct(typ, funcReturnType) {
 				result = append(result, componentType)
 			}
 		} else if IsStruct(componentType) {

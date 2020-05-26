@@ -137,6 +137,13 @@ func GetFunctionReturnParamCount(typ *Type) int {
 	return typ.Typ.NumOut()
 }
 
+func GetFunctionParameterCount(typ *Type) int {
+	if typ == nil {
+		panic("it must not be null")
+	}
+	return typ.Typ.NumIn()
+}
+
 func GetFunctionReturnTypeNames(typ *Type) []string {
 	if typ.Typ.Kind() != reflect.Func {
 		panic("It is not function type")
@@ -145,6 +152,18 @@ func GetFunctionReturnTypeNames(typ *Type) []string {
 	returnTypeCount := typ.Typ.NumOut()
 	for index := 0; index < returnTypeCount; index++ {
 		typeNames = append(typeNames, getTypeBaseName(typ.Typ.Out(index)))
+	}
+	return typeNames
+}
+
+func GetFunctionInputTypeNames(typ *Type) []string {
+	if typ.Typ.Kind() != reflect.Func {
+		panic("It is not function type")
+	}
+	typeNames := make([]string, 0)
+	returnTypeCount := typ.Typ.NumIn()
+	for index := 0; index < returnTypeCount; index++ {
+		typeNames = append(typeNames, getTypeBaseName(typ.Typ.In(index)))
 	}
 	return typeNames
 }
@@ -231,4 +250,18 @@ func IsEmbeddedStruct(parentStructType *Type, childStructType *Type) bool {
 		}
 	}
 	return false
+}
+
+func HasFunctionSameParametersWithGivenParameters(typ *Type, parameters []*Type) bool {
+	functionParameterCount := GetFunctionParameterCount(typ)
+	if len(parameters) != functionParameterCount {
+		return false
+	}
+	inputTypeNames := GetFunctionInputTypeNames(typ)
+	for index, inputTypeName := range inputTypeNames {
+		if parameters[index].String() != inputTypeName {
+			return false
+		}
+	}
+	return true
 }
