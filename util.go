@@ -174,7 +174,7 @@ func GetFunctionInputTypes(typ *Type) []*Type {
 			Typ:  typ.Typ.In(index),
 			name: getTypeBaseName(typ.Typ.In(index)),
 		}
-		inputTypes = append(inputTypes, typ)
+		inputTypes[index] = typ
 	}
 	return inputTypes
 }
