@@ -114,6 +114,9 @@ func getTypeBaseName(typ reflect.Type) string {
 	} else {
 		name = typ.Name()
 	}
+	if name == "" {
+		name = typ.String()
+	}
 	return name
 }
 
