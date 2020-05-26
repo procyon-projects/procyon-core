@@ -267,7 +267,7 @@ func HasFunctionSameParametersWithGivenParameters(typ *Type, parameters []*Type)
 	}
 	inputTypes := GetFunctionInputTypes(typ)
 	for index, inputType := range inputTypes {
-		if parameters[index] != inputType {
+		if parameters[index].Typ != inputType.Typ {
 			return false
 		}
 	}
