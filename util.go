@@ -265,9 +265,9 @@ func HasFunctionSameParametersWithGivenParameters(typ *Type, parameters []*Type)
 	if len(parameters) != functionParameterCount {
 		return false
 	}
-	inputTypeNames := GetFunctionInputTypeNames()
-	for index, inputTypeName := range inputTypeNames {
-		if parameters[index] != inputTypeName {
+	inputTypes := GetFunctionInputTypes(typ)
+	for index, inputType := range inputTypes {
+		if parameters[index] != inputType {
 			return false
 		}
 	}
