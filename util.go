@@ -170,11 +170,15 @@ func GetFunctionInputTypes(typ *Type) []*Type {
 	inputParameterCount := typ.Typ.NumIn()
 	inputTypes := make([]*Type, inputParameterCount)
 	for index := 0; index < inputParameterCount; index++ {
-		typ := &Type{
-			Typ:  typ.Typ.In(index),
-			name: getTypeBaseName(typ.Typ.In(index)),
+		typ := typ.Typ.In(index)
+		if typ.Kind() == reflect.Ptr {
+			typ = typ.Elem()
 		}
-		inputTypes[index] = typ
+		inputType := &Type{
+			Typ:  typ,
+			name: getTypeBaseName(typ),
+		}
+		inputTypes[index] = inputType
 	}
 	return inputTypes
 }
