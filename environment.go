@@ -8,7 +8,7 @@ type Environment interface {
 
 type ConfigurableEnvironment interface {
 	Environment
-	GetPropertySources() PropertySources
+	GetPropertySources() *PropertySources
 	GetSystemEnvironment() []string
 }
 
