@@ -22,31 +22,31 @@ type MapPropertySource struct {
 	source map[string]interface{}
 }
 
-func NewMapPropertySource(name string, source map[string]interface{}) MapPropertySource {
-	mapPropertySource := MapPropertySource{
+func NewMapPropertySource(name string, source map[string]interface{}) *MapPropertySource {
+	mapPropertySource := &MapPropertySource{
 		name:   name,
 		source: source,
 	}
 	return mapPropertySource
 }
 
-func (mapSource MapPropertySource) GetName() string {
+func (mapSource *MapPropertySource) GetName() string {
 	return mapSource.name
 }
 
-func (mapSource MapPropertySource) GetSource() interface{} {
+func (mapSource *MapPropertySource) GetSource() interface{} {
 	return mapSource.source
 }
 
-func (mapSource MapPropertySource) GetProperty(name string) interface{} {
+func (mapSource *MapPropertySource) GetProperty(name string) interface{} {
 	return mapSource.source[name]
 }
 
-func (mapSource MapPropertySource) ContainsProperty(name string) bool {
+func (mapSource *MapPropertySource) ContainsProperty(name string) bool {
 	return mapSource.source[name] != nil
 }
 
-func (mapSource MapPropertySource) GetPropertyNames() []string {
+func (mapSource *MapPropertySource) GetPropertyNames() []string {
 	return GetMapKeys(mapSource.source)
 }
 
@@ -55,23 +55,23 @@ type CompositePropertySource struct {
 	sources []PropertySource
 }
 
-func NewCompositePropertySource(name string) CompositePropertySource {
-	compositePropertySource := CompositePropertySource{
+func NewCompositePropertySource(name string) *CompositePropertySource {
+	compositePropertySource := &CompositePropertySource{
 		name:    name,
 		sources: make([]PropertySource, 0),
 	}
 	return compositePropertySource
 }
 
-func (compositeSource CompositePropertySource) GetName() string {
+func (compositeSource *CompositePropertySource) GetName() string {
 	return compositeSource.name
 }
 
-func (compositeSource CompositePropertySource) GetSource() interface{} {
+func (compositeSource *CompositePropertySource) GetSource() interface{} {
 	return compositeSource.sources
 }
 
-func (compositeSource CompositePropertySource) GetProperty(name string) interface{} {
+func (compositeSource *CompositePropertySource) GetProperty(name string) interface{} {
 	for _, propertySource := range compositeSource.sources {
 		property := propertySource.GetProperty(name)
 		if property != nil {
@@ -81,7 +81,7 @@ func (compositeSource CompositePropertySource) GetProperty(name string) interfac
 	return nil
 }
 
-func (compositeSource CompositePropertySource) ContainsProperty(name string) bool {
+func (compositeSource *CompositePropertySource) ContainsProperty(name string) bool {
 	for _, propertySource := range compositeSource.sources {
 		if propertySource.ContainsProperty(name) {
 			return true
@@ -90,7 +90,7 @@ func (compositeSource CompositePropertySource) ContainsProperty(name string) boo
 	return false
 }
 
-func (compositeSource CompositePropertySource) GetPropertyNames() []string {
+func (compositeSource *CompositePropertySource) GetPropertyNames() []string {
 	names := make([]string, 0)
 	for _, propertySource := range compositeSource.sources {
 		if source, ok := propertySource.(EnumerablePropertySource); ok {
@@ -102,17 +102,17 @@ func (compositeSource CompositePropertySource) GetPropertyNames() []string {
 	return names
 }
 
-func (compositeSource CompositePropertySource) AddPropertySource(propertySource PropertySource) {
+func (compositeSource *CompositePropertySource) AddPropertySource(propertySource PropertySource) {
 	compositeSource.sources = append(compositeSource.sources, propertySource)
 }
 
-func (compositeSource CompositePropertySource) AddFirstPropertySource(propertySource PropertySource) {
+func (compositeSource *CompositePropertySource) AddFirstPropertySource(propertySource PropertySource) {
 	newPropertySources := make([]PropertySource, 0)
 	newPropertySources[0] = propertySource
 	compositeSource.sources = append(newPropertySources, compositeSource.sources[0:]...)
 }
 
-func (compositeSource CompositePropertySource) GetPropertySources() []PropertySource {
+func (compositeSource *CompositePropertySource) GetPropertySources() []PropertySource {
 	return compositeSource.sources
 }
 
@@ -120,13 +120,13 @@ type PropertySources struct {
 	sources []PropertySource
 }
 
-func NewPropertySources() PropertySources {
-	return PropertySources{
+func NewPropertySources() *PropertySources {
+	return &PropertySources{
 		sources: make([]PropertySource, 0),
 	}
 }
 
-func (o PropertySources) Get(name string) (PropertySource, error) {
+func (o *PropertySources) Get(name string) (PropertySource, error) {
 	for _, source := range o.sources {
 		if source.GetName() == name {
 			return source, nil
@@ -135,12 +135,12 @@ func (o PropertySources) Get(name string) (PropertySource, error) {
 	return nil, errors.New("Property not found : " + name)
 }
 
-func (o PropertySources) Add(propertySource PropertySource) {
+func (o *PropertySources) Add(propertySource PropertySource) {
 	o.RemoveIfPresent(propertySource)
 	o.sources = append(o.sources, propertySource)
 }
 
-func (o PropertySources) Remove(name string) PropertySource {
+func (o *PropertySources) Remove(name string) PropertySource {
 	source, index := o.findPropertySourceByName(name)
 	if index != -1 {
 		o.sources = append(o.sources[:index], o.sources[index+1:]...)
@@ -148,14 +148,14 @@ func (o PropertySources) Remove(name string) PropertySource {
 	return source
 }
 
-func (o PropertySources) Replace(name string, propertySource PropertySource) {
+func (o *PropertySources) Replace(name string, propertySource PropertySource) {
 	_, index := o.findPropertySourceByName(name)
 	if index != -1 {
 		o.sources[index] = propertySource
 	}
 }
 
-func (o PropertySources) RemoveIfPresent(propertySource PropertySource) {
+func (o *PropertySources) RemoveIfPresent(propertySource PropertySource) {
 	if propertySource == nil {
 		return
 	}
@@ -165,7 +165,7 @@ func (o PropertySources) RemoveIfPresent(propertySource PropertySource) {
 	}
 }
 
-func (o PropertySources) findPropertySourceByName(name string) (PropertySource, int) {
+func (o *PropertySources) findPropertySourceByName(name string) (PropertySource, int) {
 	for index, source := range o.sources {
 		if source.GetName() == name {
 			return source, index
@@ -174,6 +174,6 @@ func (o PropertySources) findPropertySourceByName(name string) (PropertySource, 
 	return nil, -1
 }
 
-func (o PropertySources) GetSize() int {
+func (o *PropertySources) GetSize() int {
 	return len(o.sources)
 }

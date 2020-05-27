@@ -13,7 +13,7 @@ type ConfigurableEnvironment interface {
 }
 
 type StandardEnvironment struct {
-	propertySources PropertySources
+	propertySources *PropertySources
 }
 
 func NewStandardEnvironment() StandardEnvironment {
@@ -22,7 +22,7 @@ func NewStandardEnvironment() StandardEnvironment {
 	}
 }
 
-func (env StandardEnvironment) GetPropertySources() PropertySources {
+func (env StandardEnvironment) GetPropertySources() *PropertySources {
 	return env.propertySources
 }
 

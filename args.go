@@ -12,7 +12,7 @@ func NewCommandLineArgs() CommandLineArgs {
 	}
 }
 
-func (args *CommandLineArgs) addOptionArgs(name string, value string) {
+func (args CommandLineArgs) addOptionArgs(name string, value string) {
 	if args.optionArgs[name] == nil {
 		args.optionArgs[name] = make([]string, 0)
 	}
