@@ -12,7 +12,7 @@ func Register(components ...Component) {
 		if isSupportComponent(typ) {
 			registerComponentType(typ.String(), typ)
 		} else {
-			panic("It supports only struct and function")
+			panic("It supports only constructor functions")
 		}
 	}
 }
@@ -35,7 +35,7 @@ func isSupportComponent(typ *Type) bool {
 		}
 		return true
 	}
-	return IsStruct(typ)
+	return false
 }
 
 func GetComponentTypes(typ *Type) []*Type {
