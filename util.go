@@ -199,6 +199,10 @@ func GetFunctionFirstReturnType(typ *Type) *Type {
 	}
 }
 
+func IsPtr(value interface{}) bool {
+	return reflect.TypeOf(value).Kind() == reflect.Ptr
+}
+
 func IsStruct(typ *Type) bool {
 	if typ == nil {
 		panic("it must not be null")
