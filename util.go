@@ -231,7 +231,14 @@ func GetNumField(typ *Type) int {
 	return typ.Typ.NumField()
 }
 
-func GetFieldByIndex(typ *Type, index int) reflect.StructField {
+func GetFieldByIndex(typ *Type, index int) reflect.Value {
+	if typ == nil {
+		panic("it must not be null")
+	}
+	return typ.Val.Field(index)
+}
+
+func GetStructFieldByIndex(typ *Type, index int) reflect.StructField {
 	if typ == nil {
 		panic("it must not be null")
 	}
@@ -254,7 +261,7 @@ func IsEmbeddedStruct(parentStructType *Type, childStructType *Type) bool {
 	}
 	childMethodNum := GetNumField(childStructType)
 	for index := 0; index < childMethodNum; index++ {
-		field := GetFieldByIndex(childStructType, index)
+		field := GetStructFieldByIndex(childStructType, index)
 		fieldTyp := GetTypeFromStructField(field)
 		if IsAnonymous(field) && IsStruct(fieldTyp) {
 			if GetTypeName(fieldTyp) == GetTypeName(parentStructType) {
