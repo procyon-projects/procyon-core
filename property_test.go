@@ -24,7 +24,3 @@ func TestMapPropertySource(t *testing.T) {
 	var enumerablePropertySource EnumerablePropertySource = mapPropertySource
 	assert.Equal(t, 2, len(enumerablePropertySource.GetPropertyNames()))
 }
-
-func TestXYX(t *testing.T) {
-	Register(NewSimpleCommandLinePropertySource)
-}

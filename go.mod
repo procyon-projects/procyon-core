@@ -1,4 +1,4 @@
-module github.com/Rollcomp/procyon-core
+module github.com/procyon-projects/procyon-core
 
 go 1.13
 

@@ -231,7 +231,14 @@ func GetNumField(typ *Type) int {
 	return typ.Typ.NumField()
 }
 
-func GetFieldByIndex(typ *Type, index int) reflect.Value {
+func GetFieldTypeByIndex(typ *Type, index int) reflect.StructField {
+	if typ == nil {
+		panic("it must not be null")
+	}
+	return typ.Typ.Field(index)
+}
+
+func GetFieldValueByIndex(typ *Type, index int) reflect.Value {
 	if typ == nil {
 		panic("it must not be null")
 	}
