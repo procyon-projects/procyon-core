@@ -154,7 +154,11 @@ func GetFunctionReturnTypeNames(typ *Type) []string {
 	typeNames := make([]string, 0)
 	returnTypeCount := typ.Typ.NumOut()
 	for index := 0; index < returnTypeCount; index++ {
-		typeNames = append(typeNames, getTypeBaseName(typ.Typ.Out(index)))
+		param := typ.Typ.Out(index)
+		if param.Kind() == reflect.Ptr {
+			param = param.Elem()
+		}
+		typeNames = append(typeNames, getTypeBaseName(param))
 	}
 	return typeNames
 }
