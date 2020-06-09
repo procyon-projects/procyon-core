@@ -10,8 +10,8 @@ import (
 )
 
 type TypeConverter interface {
-	Support(sourceTyp Type, targetTyp Type) bool
-	Convert(source interface{}, sourceTyp Type, targetTyp Type) (interface{}, error)
+	Support(sourceTyp *Type, targetTyp *Type) bool
+	Convert(source interface{}, sourceTyp *Type, targetTyp *Type) (interface{}, error)
 }
 
 type StringToNumberConverter struct {
@@ -21,7 +21,7 @@ func NewStringToNumberConverter() StringToNumberConverter {
 	return StringToNumberConverter{}
 }
 
-func (converter StringToNumberConverter) Support(sourceTyp Type, targetTyp Type) bool {
+func (converter StringToNumberConverter) Support(sourceTyp *Type, targetTyp *Type) bool {
 	if sourceTyp.Val.Kind() == reflect.String {
 		switch targetTyp.Val.Kind() {
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
@@ -35,7 +35,7 @@ func (converter StringToNumberConverter) Support(sourceTyp Type, targetTyp Type)
 	return false
 }
 
-func (converter StringToNumberConverter) Convert(source interface{}, sourceTyp Type, targetTyp Type) (interface{}, error) {
+func (converter StringToNumberConverter) Convert(source interface{}, sourceTyp *Type, targetTyp *Type) (interface{}, error) {
 	if sourceTyp.Val.Kind() == reflect.String {
 		switch targetTyp.Val.Kind() {
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
@@ -80,7 +80,7 @@ func NewNumberToStringConverter() NumberToStringConverter {
 	return NumberToStringConverter{}
 }
 
-func (converter NumberToStringConverter) Support(sourceTyp Type, targetTyp Type) bool {
+func (converter NumberToStringConverter) Support(sourceTyp *Type, targetTyp *Type) bool {
 	if targetTyp.Val.Kind() == reflect.String {
 		switch sourceTyp.Val.Kind() {
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
@@ -94,7 +94,7 @@ func (converter NumberToStringConverter) Support(sourceTyp Type, targetTyp Type)
 	return false
 }
 
-func (converter NumberToStringConverter) Convert(source interface{}, sourceTyp Type, targetTyp Type) (interface{}, error) {
+func (converter NumberToStringConverter) Convert(source interface{}, sourceTyp *Type, targetTyp *Type) (interface{}, error) {
 	if targetTyp.Val.Kind() == reflect.String {
 		switch sourceTyp.Val.Kind() {
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
@@ -115,7 +115,7 @@ func NewStringToBooleanConverter() StringToBooleanConverter {
 	return StringToBooleanConverter{}
 }
 
-func (converter StringToBooleanConverter) Support(sourceTyp Type, targetTyp Type) bool {
+func (converter StringToBooleanConverter) Support(sourceTyp *Type, targetTyp *Type) bool {
 	if sourceTyp.Val.Kind() == reflect.String {
 		switch targetTyp.Val.Kind() {
 		case reflect.Bool:
@@ -125,7 +125,7 @@ func (converter StringToBooleanConverter) Support(sourceTyp Type, targetTyp Type
 	return false
 }
 
-func (converter StringToBooleanConverter) Convert(source interface{}, sourceTyp Type, targetTyp Type) (interface{}, error) {
+func (converter StringToBooleanConverter) Convert(source interface{}, sourceTyp *Type, targetTyp *Type) (interface{}, error) {
 	if sourceTyp.Val.Kind() == reflect.String {
 		switch targetTyp.Val.Kind() {
 		case reflect.Bool:
@@ -146,7 +146,7 @@ func NewBooleanToStringConverter() BooleanToStringConverter {
 	return BooleanToStringConverter{}
 }
 
-func (converter BooleanToStringConverter) Support(sourceTyp Type, targetTyp Type) bool {
+func (converter BooleanToStringConverter) Support(sourceTyp *Type, targetTyp *Type) bool {
 	if targetTyp.Val.Kind() == reflect.String {
 		switch sourceTyp.Val.Kind() {
 		case reflect.Bool:
@@ -156,7 +156,7 @@ func (converter BooleanToStringConverter) Support(sourceTyp Type, targetTyp Type
 	return false
 }
 
-func (converter BooleanToStringConverter) Convert(source interface{}, sourceTyp Type, targetTyp Type) (interface{}, error) {
+func (converter BooleanToStringConverter) Convert(source interface{}, sourceTyp *Type, targetTyp *Type) (interface{}, error) {
 	if targetTyp.Val.Kind() == reflect.String {
 		switch sourceTyp.Val.Kind() {
 		case reflect.Bool:
@@ -172,8 +172,8 @@ type TypeConverterRegistry interface {
 
 type TypeConverterService interface {
 	TypeConverterRegistry
-	CanConvert(source Type, target Type) bool
-	Convert(source interface{}, sourceTyp Type, targetTyp Type) interface{}
+	CanConvert(source *Type, target *Type) bool
+	Convert(source interface{}, sourceTyp *Type, targetTyp *Type) interface{}
 }
 
 type DefaultTypeConverterService struct {
@@ -198,7 +198,7 @@ func (cs *DefaultTypeConverterService) registerDefaultConverters() {
 	cs.RegisterConverter(NewStringToBooleanConverter())
 }
 
-func (cs *DefaultTypeConverterService) CanConvert(source Type, target Type) bool {
+func (cs *DefaultTypeConverterService) CanConvert(source *Type, target *Type) bool {
 	var result bool
 	cs.mu.Lock()
 	for _, converter := range cs.converters {
@@ -211,7 +211,7 @@ func (cs *DefaultTypeConverterService) CanConvert(source Type, target Type) bool
 	return result
 }
 
-func (cs *DefaultTypeConverterService) Convert(source interface{}, sourceTyp Type, targetTyp Type) interface{} {
+func (cs *DefaultTypeConverterService) Convert(source interface{}, sourceTyp *Type, targetTyp *Type) interface{} {
 	var typConverter TypeConverter
 	cs.mu.Lock()
 	for _, converter := range cs.converters {
