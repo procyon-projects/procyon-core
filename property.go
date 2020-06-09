@@ -177,3 +177,7 @@ func (o *PropertySources) findPropertySourceByName(name string) (PropertySource,
 func (o *PropertySources) GetSize() int {
 	return len(o.sources)
 }
+
+func (o *PropertySources) GetPropertyResources() []PropertySource {
+	return o.sources
+}
