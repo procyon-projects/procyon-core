@@ -34,6 +34,6 @@ func (env StandardEnvironment) ContainsProperty(name string) bool {
 	return false
 }
 
-func (env StandardEnvironment) GetProperty(name string, defaultValue string) string {
+func (env StandardEnvironment) GetProperty(name string, defaultValue string) interface{} {
 	return ""
 }
