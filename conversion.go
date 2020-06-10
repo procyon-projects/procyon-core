@@ -3,7 +3,6 @@ package core
 import (
 	"errors"
 	"fmt"
-	"log"
 	"reflect"
 	"strconv"
 	"sync"
@@ -222,7 +221,7 @@ func (cs *DefaultTypeConverterService) Convert(source interface{}, sourceTyp *Ty
 	cs.mu.Unlock()
 	if typConverter != nil {
 		defer func() {
-			log.Println("converting error has just occurred")
+			Logger.Error("converting error has just occurred")
 		}()
 		value, err := typConverter.Convert(source, sourceTyp, targetTyp)
 		if err == nil {

@@ -10,16 +10,22 @@ type ConfigurableEnvironment interface {
 	Environment
 	GetPropertySources() *PropertySources
 	GetSystemEnvironment() []string
+	GetTypeConverterService() TypeConverterService
 }
 
 type StandardEnvironment struct {
-	propertySources *PropertySources
+	propertySources  *PropertySources
+	converterService TypeConverterService
+	propertyResolver PropertyResolver
 }
 
 func NewStandardEnvironment() StandardEnvironment {
-	return StandardEnvironment{
-		propertySources: NewPropertySources(),
+	env := StandardEnvironment{
+		propertySources:  NewPropertySources(),
+		converterService: NewDefaultTypeConverterService(),
 	}
+	env.propertyResolver = NewSimplePropertyResolver(env.propertySources)
+	return env
 }
 
 func (env StandardEnvironment) GetPropertySources() *PropertySources {
@@ -31,9 +37,13 @@ func (env StandardEnvironment) GetSystemEnvironment() []string {
 }
 
 func (env StandardEnvironment) ContainsProperty(name string) bool {
-	return false
+	return env.propertyResolver.ContainsProperty(name)
 }
 
 func (env StandardEnvironment) GetProperty(name string, defaultValue string) interface{} {
-	return ""
+	return env.propertyResolver.GetProperty(name, defaultValue)
+}
+
+func (env StandardEnvironment) GetTypeConverterService() TypeConverterService {
+	return env.converterService
 }
