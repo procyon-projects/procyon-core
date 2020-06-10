@@ -7,7 +7,9 @@ import (
 )
 
 var (
-	Logger log.Logger
+	Logger = &log.Logger{
+		Formatter: NewProcyonLoggerFormatter(),
+	}
 )
 
 type ProcyonLoggerFormatter struct {
@@ -18,10 +20,7 @@ type ProcyonLoggerFormatter struct {
 func NewProcyonLoggerFormatter() *ProcyonLoggerFormatter {
 	formatter := &ProcyonLoggerFormatter{}
 	formatter.TimestampFormat = "2006-01-02 15:04:05.000"
-
-	strAppId := applicationId.String()
-	separatorIndex := strings.Index(strAppId, "-")
-	formatter.applicationId = strAppId[:separatorIndex]
+	formatter.applicationId = ""
 	return formatter
 }
 

@@ -2,13 +2,14 @@ package core
 
 import (
 	"github.com/google/uuid"
-	log "github.com/sirupsen/logrus"
+	"strings"
 )
 
 func init() {
 	/* Init application id */
 	createApplicationId()
-	/* Init logger */
+	/* Configure logger formatter */
+	configureLoggerFormatter()
 	/* Type Converter Service */
 	Register(NewDefaultTypeConverterService)
 }
@@ -25,10 +26,11 @@ func createApplicationId() {
 	}
 }
 
-func initLogger() {
-	Logger = log.Logger{
-		Formatter: NewProcyonLoggerFormatter(),
-	}
+func configureLoggerFormatter() {
+	formatter := Logger.Formatter.(*ProcyonLoggerFormatter)
+	strAppId := applicationId.String()
+	separatorIndex := strings.Index(strAppId, "-")
+	formatter.applicationId = strAppId[:separatorIndex]
 }
 
 func GetApplicationId() uuid.UUID {
