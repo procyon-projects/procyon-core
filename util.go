@@ -11,8 +11,8 @@ import (
 
 type TaskWatch struct {
 	taskName  string
-	startTime int64
-	totalTime int64
+	startTime int
+	totalTime int
 }
 
 func NewTaskWatch() *TaskWatch {
@@ -31,7 +31,7 @@ func (watch *TaskWatch) Start() error {
 	if watch.taskName != "" && watch.startTime != 0 {
 		return errors.New("TaskWatch is already running")
 	}
-	watch.startTime = time.Now().Unix()
+	watch.startTime = time.Now().Nanosecond()
 	return nil
 }
 
@@ -39,7 +39,7 @@ func (watch *TaskWatch) Stop() error {
 	if watch.taskName == "" {
 		return errors.New("TaskWatch is not running")
 	}
-	watch.totalTime = time.Now().Unix() - watch.startTime
+	watch.totalTime = time.Now().Nanosecond() - watch.startTime
 	watch.taskName = ""
 	return nil
 }
@@ -48,7 +48,7 @@ func (watch *TaskWatch) IsRunning() bool {
 	return watch.taskName != ""
 }
 
-func (watch *TaskWatch) GetTotalTime() int64 {
+func (watch *TaskWatch) GetTotalTime() int {
 	return watch.totalTime
 }
 
