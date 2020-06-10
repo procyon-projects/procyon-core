@@ -29,6 +29,7 @@ func createApplicationId() {
 func configureLoggerFormatter() {
 	formatter := Logger.Formatter.(*ProcyonLoggerFormatter)
 	strAppId := applicationId.String()
+	formatter.fullApplicationId = strAppId
 	separatorIndex := strings.Index(strAppId, "-")
 	formatter.applicationId = strAppId[:separatorIndex]
 }

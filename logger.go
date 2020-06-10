@@ -3,18 +3,21 @@ package core
 import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
+	"os"
 	"strings"
 )
 
 var (
 	Logger = &log.Logger{
+		Out:       os.Stdout,
 		Formatter: NewProcyonLoggerFormatter(),
 	}
 )
 
 type ProcyonLoggerFormatter struct {
 	log.TextFormatter
-	applicationId string
+	fullApplicationId string
+	applicationId     string
 }
 
 func NewProcyonLoggerFormatter() *ProcyonLoggerFormatter {
