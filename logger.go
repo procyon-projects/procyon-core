@@ -3,16 +3,11 @@ package core
 import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
-	"os"
 	"strings"
 )
 
 var (
-	Logger = &log.Logger{
-		Out:       os.Stderr,
-		Level:     log.DebugLevel,
-		Formatter: NewProcyonLoggerFormatter(),
-	}
+	Logger log.Logger
 )
 
 type ProcyonLoggerFormatter struct {
