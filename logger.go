@@ -43,5 +43,5 @@ func (f *ProcyonLoggerFormatter) Format(entry *log.Entry) ([]byte, error) {
 		levelColor = 36 // blue
 	}
 	return []byte(
-		fmt.Sprintf("[%s] \x1b[%dm%-7s\x1b[0m %s : %s\n", entry.Time.Format(f.TimestampFormat), levelColor, strings.ToUpper(entry.Level.String()), applicationId, entry.Message)), nil
+		fmt.Sprintf("[%s] \x1b[%dm%-7s\x1b[0m %s : %s\n", entry.Time.Format(f.TimestampFormat), levelColor, strings.ToUpper(entry.Level.String()), f.applicationId, entry.Message)), nil
 }
