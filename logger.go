@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	Log = NewSimpleLog()
+	Log = NewSimpleLogger()
 )
 
 func configureLog() {
@@ -20,7 +20,20 @@ type LogProvider interface {
 	GetLog() Logger
 }
 
+type LogLevel uint32
+
+const (
+	PanicLevel LogLevel = iota
+	FatalLevel
+	ErrorLevel
+	WarnLevel
+	InfoLevel
+	DebugLevel
+	TraceLevel
+)
+
 type Logger interface {
+	SetLevel()
 	Trace(args ...interface{})
 	Debug(args ...interface{})
 	Info(args ...interface{})
@@ -32,50 +45,54 @@ type Logger interface {
 }
 
 type SimpleLogger struct {
-	log logrus.Logger
+	log *logrus.Logger
 }
 
-func NewSimpleLog() *SimpleLogger {
-	Log := &SimpleLogger{}
-	Log.log.Out = os.Stdout
-	Log.log.Formatter = NewLogFormatter()
-	return Log
+func NewSimpleLogger() *SimpleLogger {
+	log := &SimpleLogger{
+		&logrus.Logger{
+			Out:       os.Stdout,
+			Formatter: NewLogFormatter(),
+			Level:     logrus.InfoLevel,
+		},
+	}
+	return log
 }
 
-func (Log *SimpleLogger) SetExtensibleLogFormatter(formatter ExtensibleLogFormatter) {
-	Log.log.Formatter.(*LogFormatter).ExtensibleLogFormatter = formatter
+func (l *SimpleLogger) SetExtensibleLogFormatter(formatter ExtensibleLogFormatter) {
+	l.log.Formatter.(*LogFormatter).ExtensibleLogFormatter = formatter
 }
 
-func (Log *SimpleLogger) Trace(args ...interface{}) {
-	Log.log.Trace(args)
+func (l *SimpleLogger) Trace(args ...interface{}) {
+	l.log.Trace(args...)
 }
 
-func (Log *SimpleLogger) Debug(args ...interface{}) {
-	Log.log.Debug(args)
+func (l *SimpleLogger) Debug(args ...interface{}) {
+	l.log.Debug(args...)
 }
 
-func (Log *SimpleLogger) Info(args ...interface{}) {
-	Log.log.Info(args)
+func (l *SimpleLogger) Info(args ...interface{}) {
+	l.log.Info(args...)
 }
 
-func (Log *SimpleLogger) Print(args ...interface{}) {
-	Log.log.Print(args)
+func (l *SimpleLogger) Print(args ...interface{}) {
+	l.log.Print(args...)
 }
 
-func (Log SimpleLogger) Warning(args ...interface{}) {
-	Log.log.Warning(args)
+func (l SimpleLogger) Warning(args ...interface{}) {
+	l.log.Warning(args...)
 }
 
-func (Log *SimpleLogger) Error(args ...interface{}) {
-	Log.log.Error(args)
+func (l *SimpleLogger) Error(args ...interface{}) {
+	l.log.Error(args...)
 }
 
-func (Log *SimpleLogger) Fatal(args ...interface{}) {
-	Log.log.Fatal(args)
+func (l *SimpleLogger) Fatal(args ...interface{}) {
+	l.log.Fatal(args...)
 }
 
-func (Log *SimpleLogger) Panic(args ...interface{}) {
-	Log.log.Panic(args)
+func (l *SimpleLogger) Panic(args ...interface{}) {
+	l.log.Panic(args...)
 }
 
 type ExtensibleLogFormatter interface {
