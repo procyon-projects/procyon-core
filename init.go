@@ -7,8 +7,8 @@ import (
 func init() {
 	/* Init application id */
 	createApplicationId()
-	/* Configure logger */
-	configureLogger()
+	/* Configure Log */
+	configureLog()
 	/* Type Converter Service */
 	Register(NewDefaultTypeConverterService)
 }

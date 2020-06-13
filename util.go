@@ -122,34 +122,34 @@ func getTypeBaseName(typ reflect.Type) string {
 
 func GetTypeName(typ *Type) string {
 	if typ == nil {
-		Logger.Fatal("it must not be null")
+		Log.Fatal("it must not be null")
 	}
 	if typ.Typ.Kind() == reflect.Func {
-		Logger.Fatal("Must use core.GetFunctionReturnTypeNames for functions")
+		Log.Fatal("Must use core.GetFunctionReturnTypeNames for functions")
 	}
 	return getTypeBaseName(typ.Typ)
 }
 
 func GetFunctionReturnParamCount(typ *Type) int {
 	if typ == nil {
-		Logger.Fatal("it must not be null")
+		Log.Fatal("it must not be null")
 	}
 	if typ.Typ.Kind() != reflect.Func {
-		Logger.Fatal("You cannot use it except function")
+		Log.Fatal("You cannot use it except function")
 	}
 	return typ.Typ.NumOut()
 }
 
 func GetFunctionParameterCount(typ *Type) int {
 	if typ == nil {
-		Logger.Fatal("it must not be null")
+		Log.Fatal("it must not be null")
 	}
 	return typ.Typ.NumIn()
 }
 
 func GetFunctionReturnTypeNames(typ *Type) []string {
 	if typ.Typ.Kind() != reflect.Func {
-		Logger.Fatal("It is not function type")
+		Log.Fatal("It is not function type")
 	}
 	typeNames := make([]string, 0)
 	returnTypeCount := typ.Typ.NumOut()
@@ -169,7 +169,7 @@ func GetFullFunctionName(i interface{}) string {
 
 func GetFunctionInputTypes(typ *Type) []*Type {
 	if typ == nil {
-		Logger.Fatal("it must not be null")
+		Log.Fatal("it must not be null")
 	}
 	inputParameterCount := typ.Typ.NumIn()
 	inputTypes := make([]*Type, inputParameterCount)
@@ -209,49 +209,49 @@ func IsPtr(value interface{}) bool {
 
 func IsStruct(typ *Type) bool {
 	if typ == nil {
-		Logger.Fatal("it must not be null")
+		Log.Fatal("it must not be null")
 	}
 	return typ.Typ.Kind() == reflect.Struct
 }
 
 func IsFunc(typ *Type) bool {
 	if typ == nil {
-		Logger.Fatal("it must not be null")
+		Log.Fatal("it must not be null")
 	}
 	return typ.Typ.Kind() == reflect.Func
 }
 
 func IsInterface(typ *Type) bool {
 	if typ == nil {
-		Logger.Fatal("it must not be null")
+		Log.Fatal("it must not be null")
 	}
 	return typ.Typ.Kind() == reflect.Interface
 }
 
 func GetNumField(typ *Type) int {
 	if typ == nil {
-		Logger.Fatal("it must not be null")
+		Log.Fatal("it must not be null")
 	}
 	return typ.Typ.NumField()
 }
 
 func GetFieldTypeByIndex(typ *Type, index int) reflect.StructField {
 	if typ == nil {
-		Logger.Fatal("it must not be null")
+		Log.Fatal("it must not be null")
 	}
 	return typ.Typ.Field(index)
 }
 
 func GetFieldValueByIndex(typ *Type, index int) reflect.Value {
 	if typ == nil {
-		Logger.Fatal("it must not be null")
+		Log.Fatal("it must not be null")
 	}
 	return typ.Val.Field(index)
 }
 
 func GetStructFieldByIndex(typ *Type, index int) reflect.StructField {
 	if typ == nil {
-		Logger.Fatal("it must not be null")
+		Log.Fatal("it must not be null")
 	}
 	return typ.Typ.Field(index)
 }
@@ -268,7 +268,7 @@ func GetTypeFromStructField(field reflect.StructField) *Type {
 
 func IsEmbeddedStruct(parentStructType *Type, childStructType *Type) bool {
 	if parentStructType == nil || childStructType == nil {
-		Logger.Fatal("it must not be null")
+		Log.Fatal("it must not be null")
 	}
 	childMethodNum := GetNumField(childStructType)
 	for index := 0; index < childMethodNum; index++ {

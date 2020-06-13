@@ -221,7 +221,7 @@ func (cs *DefaultTypeConverterService) Convert(source interface{}, sourceTyp *Ty
 	cs.mu.Unlock()
 	if typConverter != nil {
 		defer func() {
-			Logger.Error("converting error has just occurred")
+			Log.Error("converting error has just occurred")
 		}()
 		value, err := typConverter.Convert(source, sourceTyp, targetTyp)
 		if err == nil {

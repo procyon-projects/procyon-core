@@ -12,14 +12,14 @@ func Register(components ...Component) {
 		if isSupportComponent(typ) {
 			registerComponentType(typ.String(), typ)
 		} else {
-			Logger.Panic("It supports only constructor functions")
+			Log.Panic("It supports only constructor functions")
 		}
 	}
 }
 
 func registerComponentType(name string, typ *Type) {
 	if _, ok := componentTypes[name]; ok {
-		Logger.Panic("You have already registered the same component : " + name)
+		Log.Panic("You have already registered the same component : " + name)
 	}
 	componentTypes[name] = typ
 }
@@ -27,11 +27,11 @@ func registerComponentType(name string, typ *Type) {
 func isSupportComponent(typ *Type) bool {
 	if IsFunc(typ) {
 		if typ.Typ.NumOut() > 1 || typ.Typ.NumOut() == 0 {
-			Logger.Panic("Constructor functions are only supported, that why's your function must have only one return type")
+			Log.Panic("Constructor functions are only supported, that why's your function must have only one return type")
 		}
 		retType := GetFunctionFirstReturnType(typ)
 		if !IsStruct(retType) {
-			Logger.Panic("Constructor functions must only return struct instances : " + retType.Typ.String())
+			Log.Panic("Constructor functions must only return struct instances : " + retType.Typ.String())
 		}
 		return true
 	}
@@ -44,7 +44,7 @@ func GetComponentTypes(typ *Type) []*Type {
 
 func GetComponentTypesWithParam(typ *Type, paramTypes []*Type) []*Type {
 	if typ == nil {
-		Logger.Panic("Type must not be null")
+		Log.Panic("Type must not be null")
 	}
 	result := make([]*Type, 0)
 	for _, componentType := range componentTypes {

@@ -6,15 +6,15 @@ import (
 )
 
 func TestMapPropertySource(t *testing.T) {
-	Logger.Trace("Something very low level.")
-	Logger.Debug("Useful debugging information.")
-	Logger.Info("Something noteworthy happened!")
-	Logger.Warn("You should probably take a look at this.")
-	Logger.Error("Something failed but I'm not quitting.")
+	Log.Trace("Something very low level.")
+	Log.Debug("Useful debugging information.")
+	Log.Info("Something noteworthy happened!")
+	Log.Warn("You should probably take a look at this.")
+	Log.Error("Something failed but I'm not quitting.")
 	// Calls os.Exit(1) after logging
-	Logger.Fatal("Bye.")
+	Log.Fatal("Bye.")
 	// Calls panic() after logging
-	Logger.Panic("I'm bailing.")
+	Log.Panic("I'm bailing.")
 	testMap := map[string]interface{}{
 		"test":  "hello",
 		"test2": "world",
