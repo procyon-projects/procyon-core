@@ -16,8 +16,8 @@ func configureLog() {
 	Log.SetExtensibleLogFormatter(NewSimpleExtensibleLogFormatter(appId.String(), appId.String()))
 }
 
-type LogProvider interface {
-	GetLog() Logger
+type LoggerProvider interface {
+	GetLogger() Logger
 }
 
 type LogLevel uint32
