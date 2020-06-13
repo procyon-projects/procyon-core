@@ -33,7 +33,6 @@ const (
 )
 
 type Logger interface {
-	SetLevel()
 	Trace(args ...interface{})
 	Debug(args ...interface{})
 	Info(args ...interface{})
