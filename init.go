@@ -2,14 +2,13 @@ package core
 
 import (
 	"github.com/google/uuid"
-	"strings"
 )
 
 func init() {
 	/* Init application id */
 	createApplicationId()
-	/* Configure logger formatter */
-	configureLoggerFormatter()
+	/* Configure logger */
+	configureLogger()
 	/* Type Converter Service */
 	Register(NewDefaultTypeConverterService)
 }
@@ -18,22 +17,14 @@ var (
 	applicationId uuid.UUID
 )
 
+func GetApplicationId() uuid.UUID {
+	return applicationId
+}
+
 func createApplicationId() {
 	var err error
 	applicationId, err = uuid.NewUUID()
 	if err != nil {
-		Logger.Fatal("Could not application id")
+		Log.Fatal("Could not application id")
 	}
-}
-
-func configureLoggerFormatter() {
-	formatter := Logger.Formatter.(*ProcyonLoggerFormatter)
-	strAppId := applicationId.String()
-	formatter.fullApplicationId = strAppId
-	separatorIndex := strings.Index(strAppId, "-")
-	formatter.applicationId = strAppId[:separatorIndex]
-}
-
-func GetApplicationId() uuid.UUID {
-	return applicationId
 }
