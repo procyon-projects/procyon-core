@@ -7,15 +7,6 @@ import (
 	"strings"
 )
 
-var (
-	Log = NewSimpleLogger()
-)
-
-func configureLog() {
-	appId := GetApplicationId()
-	Log.SetExtensibleLogFormatter(NewSimpleExtensibleLogFormatter(appId.String(), appId.String()))
-}
-
 type LoggerProvider interface {
 	GetLogger() Logger
 }
@@ -47,19 +38,15 @@ type SimpleLogger struct {
 	log *logrus.Logger
 }
 
-func NewSimpleLogger() *SimpleLogger {
+func NewSimpleLogger(appId string, contextId string) *SimpleLogger {
 	log := &SimpleLogger{
 		&logrus.Logger{
 			Out:       os.Stdout,
-			Formatter: NewLogFormatter(),
+			Formatter: NewLogFormatter(appId, contextId),
 			Level:     logrus.InfoLevel,
 		},
 	}
 	return log
-}
-
-func (l *SimpleLogger) SetExtensibleLogFormatter(formatter ExtensibleLogFormatter) {
-	l.log.Formatter.(*LogFormatter).ExtensibleLogFormatter = formatter
 }
 
 func (l *SimpleLogger) Trace(args ...interface{}) {
@@ -94,47 +81,31 @@ func (l *SimpleLogger) Panic(args ...interface{}) {
 	l.log.Panic(args...)
 }
 
-type ExtensibleLogFormatter interface {
-	GetApplicationId() string
-	GetContextId() string
-}
-
-type SimpleExtensibleLogFormatter struct {
+type LogFormatter struct {
+	logrus.TextFormatter
 	appId     string
 	contextId string
 }
 
-func NewSimpleExtensibleLogFormatter(appId string, contextId string) SimpleExtensibleLogFormatter {
-	return SimpleExtensibleLogFormatter{
-		appId,
-		contextId,
+func NewLogFormatter(appId string, contextId string) *LogFormatter {
+	formatter := &LogFormatter{
+		appId:     appId,
+		contextId: contextId,
 	}
-}
-
-func (e SimpleExtensibleLogFormatter) GetApplicationId() string {
-	return e.appId
-}
-
-func (e SimpleExtensibleLogFormatter) GetContextId() string {
-	return e.contextId
-}
-
-type LogFormatter struct {
-	logrus.TextFormatter
-	ExtensibleLogFormatter
-}
-
-func NewLogFormatter() *LogFormatter {
-	formatter := &LogFormatter{}
 	formatter.TimestampFormat = "2006-01-02 15:04:05.000"
 	return formatter
 }
 
-func (f *LogFormatter) SetExtensibleLogFormatter(formatter ExtensibleLogFormatter) {
-	f.ExtensibleLogFormatter = formatter
+func (f *LogFormatter) GetApplicationId() string {
+	return f.appId
+}
+
+func (f *LogFormatter) GetContextId() string {
+	return f.contextId
 }
 
 func (f *LogFormatter) Format(entry *logrus.Entry) ([]byte, error) {
+
 	var levelColor int
 	switch entry.Level {
 	case logrus.DebugLevel, logrus.TraceLevel:
@@ -146,12 +117,11 @@ func (f *LogFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	default:
 		levelColor = 36 // blue
 	}
-	LogContextId := ""
-	if f.ExtensibleLogFormatter != nil {
-		LogContextId = f.GetContextId()
-		separatorIndex := strings.Index(LogContextId, "-")
-		LogContextId = LogContextId[:separatorIndex]
-	}
+
+	logContextId := f.GetContextId()
+	separatorIndex := strings.Index(logContextId, "-")
+	logContextId = logContextId[:separatorIndex]
+
 	return []byte(
-		fmt.Sprintf("[%s] \x1b[%dm%-7s\x1b[0m %s : %s\n", entry.Time.Format(f.TimestampFormat), levelColor, strings.ToUpper(entry.Level.String()), LogContextId, entry.Message)), nil
+		fmt.Sprintf("[%s] \x1b[%dm%-7s\x1b[0m %s : %s\n", entry.Time.Format(f.TimestampFormat), levelColor, strings.ToUpper(entry.Level.String()), logContextId, entry.Message)), nil
 }
