@@ -267,7 +267,7 @@ func GetTypeFromStructField(field reflect.StructField) *Type {
 
 func IsEmbeddedStruct(parentStructType *Type, childStructType *Type) bool {
 	if parentStructType == nil || childStructType == nil {
-		Log.Fatal("it must not be null")
+		panic("it must not be null")
 	}
 	childMethodNum := GetNumField(childStructType)
 	for index := 0; index < childMethodNum; index++ {
