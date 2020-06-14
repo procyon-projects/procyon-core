@@ -2,7 +2,6 @@ package core
 
 import (
 	"errors"
-	"log"
 	"reflect"
 	"runtime"
 	"strings"
@@ -74,7 +73,7 @@ func (typ *Type) String() string {
 func GetType(obj interface{}) *Type {
 	typ := reflect.TypeOf(obj)
 	if typ == nil {
-		log.Fatal("Type cannot be determined.")
+		panic("Type cannot be determined.")
 	}
 	if typ.Kind() == reflect.Ptr {
 		typ = typ.Elem()
@@ -122,34 +121,34 @@ func getTypeBaseName(typ reflect.Type) string {
 
 func GetTypeName(typ *Type) string {
 	if typ == nil {
-		Log.Fatal("it must not be null")
+		panic("it must not be null")
 	}
 	if typ.Typ.Kind() == reflect.Func {
-		Log.Fatal("Must use core.GetFunctionReturnTypeNames for functions")
+		panic("Must use core.GetFunctionReturnTypeNames for functions")
 	}
 	return getTypeBaseName(typ.Typ)
 }
 
 func GetFunctionReturnParamCount(typ *Type) int {
 	if typ == nil {
-		Log.Fatal("it must not be null")
+		panic("it must not be null")
 	}
 	if typ.Typ.Kind() != reflect.Func {
-		Log.Fatal("You cannot use it except function")
+		panic("You cannot use it except function")
 	}
 	return typ.Typ.NumOut()
 }
 
 func GetFunctionParameterCount(typ *Type) int {
 	if typ == nil {
-		Log.Fatal("it must not be null")
+		panic("it must not be null")
 	}
 	return typ.Typ.NumIn()
 }
 
 func GetFunctionReturnTypeNames(typ *Type) []string {
 	if typ.Typ.Kind() != reflect.Func {
-		Log.Fatal("It is not function type")
+		panic("It is not function type")
 	}
 	typeNames := make([]string, 0)
 	returnTypeCount := typ.Typ.NumOut()
@@ -169,7 +168,7 @@ func GetFullFunctionName(i interface{}) string {
 
 func GetFunctionInputTypes(typ *Type) []*Type {
 	if typ == nil {
-		Log.Fatal("it must not be null")
+		panic("it must not be null")
 	}
 	inputParameterCount := typ.Typ.NumIn()
 	inputTypes := make([]*Type, inputParameterCount)
@@ -209,49 +208,49 @@ func IsPtr(value interface{}) bool {
 
 func IsStruct(typ *Type) bool {
 	if typ == nil {
-		Log.Fatal("it must not be null")
+		panic("it must not be null")
 	}
 	return typ.Typ.Kind() == reflect.Struct
 }
 
 func IsFunc(typ *Type) bool {
 	if typ == nil {
-		Log.Fatal("it must not be null")
+		panic("it must not be null")
 	}
 	return typ.Typ.Kind() == reflect.Func
 }
 
 func IsInterface(typ *Type) bool {
 	if typ == nil {
-		Log.Fatal("it must not be null")
+		panic("it must not be null")
 	}
 	return typ.Typ.Kind() == reflect.Interface
 }
 
 func GetNumField(typ *Type) int {
 	if typ == nil {
-		Log.Fatal("it must not be null")
+		panic("it must not be null")
 	}
 	return typ.Typ.NumField()
 }
 
 func GetFieldTypeByIndex(typ *Type, index int) reflect.StructField {
 	if typ == nil {
-		Log.Fatal("it must not be null")
+		panic("it must not be null")
 	}
 	return typ.Typ.Field(index)
 }
 
 func GetFieldValueByIndex(typ *Type, index int) reflect.Value {
 	if typ == nil {
-		Log.Fatal("it must not be null")
+		panic("it must not be null")
 	}
 	return typ.Val.Field(index)
 }
 
 func GetStructFieldByIndex(typ *Type, index int) reflect.StructField {
 	if typ == nil {
-		Log.Fatal("it must not be null")
+		panic("it must not be null")
 	}
 	return typ.Typ.Field(index)
 }

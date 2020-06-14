@@ -2,7 +2,6 @@ package core
 
 import (
 	"errors"
-	"log"
 )
 
 type PropertySource interface {
@@ -96,7 +95,7 @@ func (compositeSource *CompositePropertySource) GetPropertyNames() []string {
 		if source, ok := propertySource.(EnumerablePropertySource); ok {
 			names = append(names, source.GetPropertyNames()...)
 		} else {
-			log.Fatal("Property source does not support except EnumerablePropertySource")
+			panic("Property source does not support except EnumerablePropertySource")
 		}
 	}
 	return names

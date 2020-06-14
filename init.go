@@ -25,6 +25,6 @@ func createApplicationId() {
 	var err error
 	applicationId, err = uuid.NewUUID()
 	if err != nil {
-		Log.Fatal("Could not application id")
+		panic("Could not application id")
 	}
 }
