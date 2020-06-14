@@ -1,5 +1,7 @@
 package core
 
+import "errors"
+
 type Component interface{}
 
 var (
@@ -38,13 +40,13 @@ func isSupportComponent(typ *Type) bool {
 	return false
 }
 
-func GetComponentTypes(typ *Type) []*Type {
+func GetComponentTypes(typ *Type) ([]*Type, error) {
 	return GetComponentTypesWithParam(typ, nil)
 }
 
-func GetComponentTypesWithParam(typ *Type, paramTypes []*Type) []*Type {
+func GetComponentTypesWithParam(typ *Type, paramTypes []*Type) ([]*Type, error) {
 	if typ == nil {
-		panic("Type must not be null")
+		return nil, errors.New("type must not be null")
 	}
 	result := make([]*Type, 0)
 	for _, componentType := range componentTypes {
@@ -63,5 +65,5 @@ func GetComponentTypesWithParam(typ *Type, paramTypes []*Type) []*Type {
 			}
 		}
 	}
-	return result
+	return result, nil
 }

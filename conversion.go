@@ -172,7 +172,7 @@ type TypeConverterRegistry interface {
 type TypeConverterService interface {
 	TypeConverterRegistry
 	CanConvert(source *Type, target *Type) bool
-	Convert(source interface{}, sourceTyp *Type, targetTyp *Type) interface{}
+	Convert(source interface{}, sourceTyp *Type, targetTyp *Type) (interface{}, error)
 }
 
 type DefaultTypeConverterService struct {
@@ -210,7 +210,7 @@ func (cs *DefaultTypeConverterService) CanConvert(source *Type, target *Type) bo
 	return result
 }
 
-func (cs *DefaultTypeConverterService) Convert(source interface{}, sourceTyp *Type, targetTyp *Type) interface{} {
+func (cs *DefaultTypeConverterService) Convert(source interface{}, sourceTyp *Type, targetTyp *Type) (result interface{}, err error) {
 	var typConverter TypeConverter
 	cs.mu.Lock()
 	for _, converter := range cs.converters {
@@ -221,14 +221,11 @@ func (cs *DefaultTypeConverterService) Convert(source interface{}, sourceTyp *Ty
 	cs.mu.Unlock()
 	if typConverter != nil {
 		defer func() {
-			Log.Error("converting error has just occurred")
+			err = errors.New("converting error has just occurred")
 		}()
-		value, err := typConverter.Convert(source, sourceTyp, targetTyp)
-		if err == nil {
-			return value
-		}
+		result, err = typConverter.Convert(source, sourceTyp, targetTyp)
 	}
-	return nil
+	return
 }
 
 func (cs *DefaultTypeConverterService) RegisterConverter(converter TypeConverter) {
