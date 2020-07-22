@@ -33,6 +33,7 @@ type Logger interface {
 	Error(args ...interface{})
 	Fatal(args ...interface{})
 	Panic(args ...interface{})
+	Clone(contextId uuid.UUID) Logger
 }
 
 type SimpleLogger struct {
@@ -137,6 +138,13 @@ type ProxyLogger struct {
 func NewProxyLogger(logger *SimpleLogger, contextId uuid.UUID) *ProxyLogger {
 	return &ProxyLogger{
 		logger,
+		contextId.String(),
+	}
+}
+
+func (l *ProxyLogger) Clone(contextId uuid.UUID) Logger {
+	return &ProxyLogger{
+		l.logger,
 		contextId.String(),
 	}
 }
