@@ -130,11 +130,11 @@ func (f *LogFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 }
 
 type ProxyLogger struct {
-	logger    SimpleLogger
+	logger    *SimpleLogger
 	contextId string
 }
 
-func NewProxyLogger(logger SimpleLogger, contextId uuid.UUID) *ProxyLogger {
+func NewProxyLogger(logger *SimpleLogger, contextId uuid.UUID) *ProxyLogger {
 	return &ProxyLogger{
 		logger,
 		contextId.String(),
