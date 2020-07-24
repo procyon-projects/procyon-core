@@ -1,3 +1,7 @@
 package core
 
-var GetThreadId func() uint32
+var getThreadIdFunc func() uint32
+
+func GetThreadId() uint32 {
+	return getThreadIdFunc()
+}
