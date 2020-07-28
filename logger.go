@@ -130,28 +130,29 @@ func (f *LogFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 		fmt.Sprintf("[%s] \x1b[%dm%-7s\x1b[0m %s : %s\n", entry.Time.Format(f.TimestampFormat), levelColor, strings.ToUpper(entry.Level.String()), logContextId, entry.Message)), nil
 }
 
-func newProxyLogger() interface{} {
-	return &ProxyLogger{}
-}
+var i int = 0
 
-func getProxyLoggerFromPool() *ProxyLogger {
-	return GetFromPool(proxyLoggerType).(*ProxyLogger)
+func newProxyLogger() interface{} {
+	i++
+	return &ProxyLogger{}
 }
 
 type ProxyLogger struct {
 	logger    *SimpleLogger
 	contextId string
+	x         int
 }
 
 func NewProxyLogger(logger *SimpleLogger, contextId uuid.UUID) *ProxyLogger {
 	return &ProxyLogger{
 		logger,
 		contextId.String(),
+		0,
 	}
 }
 
 func (l *ProxyLogger) Clone(contextId uuid.UUID) Logger {
-	cloneLogger := getProxyLoggerFromPool()
+	cloneLogger := loggerPool.Get().(*ProxyLogger)
 	cloneLogger.contextId = contextId.String()
 	cloneLogger.logger = l.logger
 	return cloneLogger
