@@ -7,22 +7,22 @@ import (
 )
 
 var (
-	PoolManager poolManager
+	poolManager PoolManager
 )
 
-type poolManager struct {
+type PoolManager struct {
 	poolMap map[reflect.Type]sync.Pool
 	mu      sync.RWMutex
 }
 
-func newPoolManager() poolManager {
-	poolManager := poolManager{
+func newPoolManager() PoolManager {
+	poolManager := PoolManager{
 		poolMap: make(map[reflect.Type]sync.Pool),
 	}
 	return poolManager
 }
 
-func (manager poolManager) Register(typ *Type, newFunc func() interface{}) error {
+func (manager PoolManager) register(typ *Type, newFunc func() interface{}) error {
 	if typ == nil {
 		return errors.New("pool type cannot be null")
 	}
@@ -50,7 +50,7 @@ func (manager poolManager) Register(typ *Type, newFunc func() interface{}) error
 	return nil
 }
 
-func (manager poolManager) Get(typ *Type) (interface{}, error) {
+func (manager PoolManager) get(typ *Type) (interface{}, error) {
 	if typ == nil {
 		return nil, errors.New("pool type cannot be null")
 	}
@@ -67,7 +67,7 @@ func (manager poolManager) Get(typ *Type) (interface{}, error) {
 	return nil, nil
 }
 
-func (manager poolManager) Put(instance interface{}) {
+func (manager PoolManager) put(instance interface{}) {
 	if instance == nil {
 		return
 	}
@@ -83,4 +83,25 @@ func (manager poolManager) Put(instance interface{}) {
 		return
 	}
 	manager.mu.Unlock()
+}
+
+func RegisterPool(typ *Type, newFunc func() interface{}) {
+	err := poolManager.register(typ, newFunc)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func GetFromPool(typ *Type) interface{} {
+	instance, err := poolManager.get(typ)
+	if err != nil {
+		panic(err)
+	}
+	return instance
+}
+
+func PutToPool(instances ...interface{}) {
+	for _, instance := range instances {
+		poolManager.put(instance)
+	}
 }

@@ -2,7 +2,7 @@ package core
 
 func init() {
 	/* Initialize Pool Manager */
-	PoolManager = newPoolManager()
+	poolManager = newPoolManager()
 	/* Type Converter Service */
 	Register(NewDefaultTypeConverterService)
 }
