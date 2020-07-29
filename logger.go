@@ -8,6 +8,18 @@ import (
 	"strings"
 )
 
+import "sync"
+
+var (
+	loggerPool sync.Pool
+)
+
+func initProxyLoggerPool() {
+	loggerPool = sync.Pool{
+		New: newProxyLogger,
+	}
+}
+
 type LoggerProvider interface {
 	GetLogger() Logger
 }
@@ -130,24 +142,19 @@ func (f *LogFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 		fmt.Sprintf("[%s] \x1b[%dm%-7s\x1b[0m %s : %s\n", entry.Time.Format(f.TimestampFormat), levelColor, strings.ToUpper(entry.Level.String()), logContextId, entry.Message)), nil
 }
 
-var i int = 0
-
 func newProxyLogger() interface{} {
-	i++
 	return &ProxyLogger{}
 }
 
 type ProxyLogger struct {
 	logger    *SimpleLogger
 	contextId string
-	x         int
 }
 
 func NewProxyLogger(logger *SimpleLogger, contextId uuid.UUID) *ProxyLogger {
 	return &ProxyLogger{
 		logger,
 		contextId.String(),
-		0,
 	}
 }
 
@@ -156,6 +163,10 @@ func (l *ProxyLogger) Clone(contextId uuid.UUID) Logger {
 	cloneLogger.contextId = contextId.String()
 	cloneLogger.logger = l.logger
 	return cloneLogger
+}
+
+func (l *ProxyLogger) PutToPool() {
+	loggerPool.Put(l)
 }
 
 func (l *ProxyLogger) Trace(args ...interface{}) {
