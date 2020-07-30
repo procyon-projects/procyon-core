@@ -12,6 +12,7 @@ type TaskWatch struct {
 	taskName  string
 	startTime time.Time
 	totalTime time.Duration
+	isRunning bool
 }
 
 func NewTaskWatch() *TaskWatch {
@@ -27,24 +28,26 @@ func NewTaskWatchWithName(taskName string) *TaskWatch {
 }
 
 func (watch *TaskWatch) Start() error {
-	if watch.taskName != "" {
+	if watch.isRunning {
 		return errors.New("TaskWatch is already running")
 	}
 	watch.startTime = time.Now()
+	watch.isRunning = true
 	return nil
 }
 
 func (watch *TaskWatch) Stop() error {
-	if watch.taskName == "" {
+	if !watch.isRunning {
 		return errors.New("TaskWatch is not running")
 	}
+	watch.isRunning = true
 	watch.totalTime = time.Since(watch.startTime)
 	watch.taskName = ""
 	return nil
 }
 
 func (watch *TaskWatch) IsRunning() bool {
-	return watch.taskName != ""
+	return watch.isRunning
 }
 
 func (watch *TaskWatch) GetTotalTime() int64 {
