@@ -10,8 +10,8 @@ import (
 
 type TaskWatch struct {
 	taskName  string
-	startTime int
-	totalTime int
+	startTime time.Time
+	totalTime time.Duration
 }
 
 func NewTaskWatch() *TaskWatch {
@@ -27,10 +27,10 @@ func NewTaskWatchWithName(taskName string) *TaskWatch {
 }
 
 func (watch *TaskWatch) Start() error {
-	if watch.taskName != "" && watch.startTime != 0 {
+	if watch.taskName != "" {
 		return errors.New("TaskWatch is already running")
 	}
-	watch.startTime = time.Now().Nanosecond()
+	watch.startTime = time.Now()
 	return nil
 }
 
@@ -38,7 +38,7 @@ func (watch *TaskWatch) Stop() error {
 	if watch.taskName == "" {
 		return errors.New("TaskWatch is not running")
 	}
-	watch.totalTime = time.Now().Nanosecond() - watch.startTime
+	watch.totalTime = time.Since(watch.startTime)
 	watch.taskName = ""
 	return nil
 }
@@ -47,8 +47,8 @@ func (watch *TaskWatch) IsRunning() bool {
 	return watch.taskName != ""
 }
 
-func (watch *TaskWatch) GetTotalTime() int {
-	return watch.totalTime
+func (watch *TaskWatch) GetTotalTime() int64 {
+	return watch.totalTime.Nanoseconds()
 }
 
 func GetMapKeys(mapObj interface{}) []string {
