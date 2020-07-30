@@ -1,18 +1,30 @@
 package core
 
-import "errors"
+import (
+	"errors"
+)
 
 type Component interface{}
 
+type ComponentProcessor interface {
+	SupportsComponent(typ *Type) bool
+	ProcessComponent(typ *Type) error
+}
+
 var (
-	componentTypes = make(map[string]*Type, 0)
+	componentTypes     = make(map[string]*Type, 0)
+	componentProcessor = make(map[string]*Type, 0)
 )
 
 func Register(components ...Component) {
 	for _, component := range components {
 		typ := GetType(component)
 		if isSupportComponent(typ) {
-			registerComponentType(typ.String(), typ)
+			if implementsComponentProcessorInterface(typ) {
+				registerComponentProcessor(typ.String(), typ)
+			} else {
+				registerComponentType(typ.String(), typ)
+			}
 		} else {
 			panic("It supports only constructor functions")
 		}
@@ -26,6 +38,13 @@ func registerComponentType(name string, typ *Type) {
 	componentTypes[name] = typ
 }
 
+func registerComponentProcessor(name string, typ *Type) {
+	if _, ok := componentProcessor[name]; ok {
+		panic("You have already registered the same component processor : " + name)
+	}
+	componentProcessor[name] = typ
+}
+
 func isSupportComponent(typ *Type) bool {
 	if IsFunc(typ) {
 		if typ.Typ.NumOut() > 1 || typ.Typ.NumOut() == 0 {
@@ -35,6 +54,14 @@ func isSupportComponent(typ *Type) bool {
 		if !IsStruct(retType) {
 			panic("Constructor functions must only return struct instances : " + retType.Typ.String())
 		}
+		return true
+	}
+	return false
+}
+
+func implementsComponentProcessorInterface(typ *Type) bool {
+	componentProcessorType := GetType((ComponentProcessor)(nil))
+	if typ.Typ.Implements(componentProcessorType.Typ) {
 		return true
 	}
 	return false
@@ -66,4 +93,12 @@ func GetComponentTypesWithParam(typ *Type, paramTypes []*Type) ([]*Type, error) 
 		}
 	}
 	return result, nil
+}
+
+func GetComponentTypeMap() map[string]*Type {
+	return componentTypes
+}
+
+func GetComponentProcessorMap() map[string]*Type {
+	return componentProcessor
 }
