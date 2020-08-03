@@ -61,7 +61,8 @@ func isSupportComponent(typ *Type) bool {
 
 func implementsComponentProcessorInterface(typ *Type) bool {
 	componentProcessorType := GetType((*ComponentProcessor)(nil))
-	if typ.Typ.Implements(componentProcessorType.Typ) {
+	retType := GetFunctionFirstReturnType(typ)
+	if retType.Typ.Implements(componentProcessorType.Typ) {
 		return true
 	}
 	return false
