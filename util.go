@@ -6,6 +6,7 @@ import (
 	"runtime"
 	"strings"
 	"time"
+	"unicode"
 )
 
 type TaskWatch struct {
@@ -300,4 +301,8 @@ func HasFunctionSameParametersWithGivenParameters(typ *Type, parameters []*Type)
 		}
 	}
 	return true
+}
+
+func IsExportedField(structField reflect.StructField) bool {
+	return unicode.IsUpper(rune(structField.Name[0]))
 }
