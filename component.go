@@ -96,10 +96,16 @@ func GetComponentTypesWithParam(typ *Type, paramTypes []*Type) ([]*Type, error) 
 	return result, nil
 }
 
-func GetComponentTypeMap() map[string]*Type {
-	return componentTypes
+func VisitComponentTypes(callback func(string, *Type)) {
+	for componentName := range componentTypes {
+		component := componentTypes[componentName]
+		callback(componentName, component)
+	}
 }
 
-func GetComponentProcessorMap() map[string]*Type {
-	return componentProcessor
+func VisitComponentProcessors(callback func(string, *Type)) {
+	for componentProcessorName := range componentProcessor {
+		componentProcessor := componentTypes[componentProcessorName]
+		callback(componentProcessorName, componentProcessor)
+	}
 }
