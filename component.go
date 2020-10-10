@@ -109,7 +109,7 @@ func VisitComponentTypes(callback func(string, *Type) error) (err error) {
 
 func VisitComponentProcessors(callback func(string, *Type) error) (err error) {
 	for componentProcessorName := range componentProcessor {
-		componentProcessor := componentTypes[componentProcessorName]
+		componentProcessor := componentProcessor[componentProcessorName]
 		err = callback(componentProcessorName, componentProcessor)
 		if err != nil {
 			break
