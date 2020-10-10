@@ -2,23 +2,11 @@ package core
 
 import (
 	"fmt"
-	"github.com/google/uuid"
+	"github.com/procyon-projects/procyon-context"
 	"github.com/sirupsen/logrus"
 	"os"
 	"strings"
 )
-
-import "sync"
-
-var (
-	loggerPool sync.Pool
-)
-
-func initProxyLoggerPool() {
-	loggerPool = sync.Pool{
-		New: newProxyLogger,
-	}
-}
 
 type LoggerProvider interface {
 	GetLogger() Logger
@@ -37,15 +25,14 @@ const (
 )
 
 type Logger interface {
-	Trace(args ...interface{})
-	Debug(args ...interface{})
-	Info(args ...interface{})
-	Print(args ...interface{})
-	Warning(args ...interface{})
-	Error(args ...interface{})
-	Fatal(args ...interface{})
-	Panic(args ...interface{})
-	Clone(contextId uuid.UUID) Logger
+	Trace(ctx context.Context, args ...interface{})
+	Debug(ctx context.Context, args ...interface{})
+	Info(ctx context.Context, args ...interface{})
+	Print(ctx context.Context, args ...interface{})
+	Warning(ctx context.Context, args ...interface{})
+	Error(ctx context.Context, args ...interface{})
+	Fatal(ctx context.Context, args ...interface{})
+	Panic(ctx context.Context, args ...interface{})
 }
 
 type SimpleLogger struct {
@@ -63,51 +50,65 @@ func NewSimpleLogger() *SimpleLogger {
 	return log
 }
 
-func (l *SimpleLogger) Trace(contextId string, args ...interface{}) {
+func (l *SimpleLogger) checkContext(ctx context.Context) {
+	if ctx == nil {
+		panic("Context must not be nil")
+	}
+}
+
+func (l *SimpleLogger) Trace(ctx context.Context, args ...interface{}) {
+	l.checkContext(ctx)
 	l.log.WithFields(logrus.Fields{
-		"context_id": contextId,
+		"context_id": ctx.GetContextId(),
 	}).Trace(args...)
 }
 
-func (l *SimpleLogger) Debug(contextId string, args ...interface{}) {
+func (l *SimpleLogger) Debug(ctx context.Context, args ...interface{}) {
+	l.checkContext(ctx)
 	l.log.WithFields(logrus.Fields{
-		"context_id": contextId,
+		"context_id": ctx.GetContextId(),
 	}).Debug(args...)
 }
 
-func (l *SimpleLogger) Info(contextId string, args ...interface{}) {
+func (l *SimpleLogger) Info(ctx context.Context, args ...interface{}) {
+	l.checkContext(ctx)
 	l.log.WithFields(logrus.Fields{
-		"context_id": contextId,
+		"context_id": ctx.GetContextId(),
 	}).Info(args...)
 }
 
-func (l *SimpleLogger) Print(contextId string, args ...interface{}) {
+func (l *SimpleLogger) Print(ctx context.Context, args ...interface{}) {
+	l.checkContext(ctx)
 	l.log.WithFields(logrus.Fields{
-		"context_id": contextId,
+		"context_id": ctx.GetContextId(),
 	}).Print(args...)
 }
 
-func (l SimpleLogger) Warning(contextId string, args ...interface{}) {
+func (l SimpleLogger) Warning(ctx context.Context, args ...interface{}) {
+	l.checkContext(ctx)
 	l.log.WithFields(logrus.Fields{
-		"context_id": contextId,
+		"context_id": ctx.GetContextId(),
 	}).Warning(args...)
 }
 
-func (l *SimpleLogger) Error(contextId string, args ...interface{}) {
+func (l *SimpleLogger) Error(ctx context.Context, args ...interface{}) {
+	l.checkContext(ctx)
 	l.log.WithFields(logrus.Fields{
-		"context_id": contextId,
+		"context_id": ctx.GetContextId(),
 	}).Error(args...)
 }
 
-func (l *SimpleLogger) Fatal(contextId string, args ...interface{}) {
+func (l *SimpleLogger) Fatal(ctx context.Context, args ...interface{}) {
+	l.checkContext(ctx)
 	l.log.WithFields(logrus.Fields{
-		"context_id": contextId,
+		"context_id": ctx.GetContextId(),
 	}).Fatal(args...)
 }
 
-func (l *SimpleLogger) Panic(contextId string, args ...interface{}) {
+func (l *SimpleLogger) Panic(ctx context.Context, args ...interface{}) {
+	l.checkContext(ctx)
 	l.log.WithFields(logrus.Fields{
-		"context_id": contextId,
+		"context_id": ctx.GetContextId(),
 	}).Panic(args...)
 }
 
@@ -140,63 +141,4 @@ func (f *LogFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 
 	return []byte(
 		fmt.Sprintf("[%s] \x1b[%dm%-7s\x1b[0m %s : %s\n", entry.Time.Format(f.TimestampFormat), levelColor, strings.ToUpper(entry.Level.String()), logContextId, entry.Message)), nil
-}
-
-func newProxyLogger() interface{} {
-	return &ProxyLogger{}
-}
-
-type ProxyLogger struct {
-	logger    *SimpleLogger
-	contextId string
-}
-
-func NewProxyLogger(logger *SimpleLogger, contextId uuid.UUID) *ProxyLogger {
-	return &ProxyLogger{
-		logger,
-		contextId.String(),
-	}
-}
-
-func (l *ProxyLogger) Clone(contextId uuid.UUID) Logger {
-	cloneLogger := loggerPool.Get().(*ProxyLogger)
-	cloneLogger.contextId = contextId.String()
-	cloneLogger.logger = l.logger
-	return cloneLogger
-}
-
-func (l *ProxyLogger) PutToPool() {
-	loggerPool.Put(l)
-}
-
-func (l *ProxyLogger) Trace(args ...interface{}) {
-	l.logger.Trace(l.contextId, args...)
-}
-
-func (l *ProxyLogger) Debug(args ...interface{}) {
-	l.logger.Debug(l.contextId, args...)
-}
-
-func (l *ProxyLogger) Info(args ...interface{}) {
-	l.logger.Info(l.contextId, args...)
-}
-
-func (l *ProxyLogger) Print(args ...interface{}) {
-	l.logger.Print(l.contextId, args...)
-}
-
-func (l ProxyLogger) Warning(args ...interface{}) {
-	l.logger.Warning(l.contextId, args...)
-}
-
-func (l *ProxyLogger) Error(args ...interface{}) {
-	l.logger.Error(l.contextId, args...)
-}
-
-func (l *ProxyLogger) Fatal(args ...interface{}) {
-	l.logger.Fatal(l.contextId, args...)
-}
-
-func (l *ProxyLogger) Panic(args ...interface{}) {
-	l.logger.Panic(l.contextId, args...)
 }
