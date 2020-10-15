@@ -2,28 +2,32 @@ package core
 
 import (
 	"errors"
+	"github.com/codnect/goo"
 )
 
 type Component interface{}
 
 type ComponentProcessor interface {
-	SupportsComponent(typ *Type) bool
-	ProcessComponent(typ *Type) error
+	SupportsComponent(typ goo.Type) bool
+	ProcessComponent(typ goo.Type) error
 }
 
 var (
-	componentTypes     = make(map[string]*Type, 0)
-	componentProcessor = make(map[string]*Type, 0)
+	componentTypes     = make(map[string]goo.Type, 0)
+	componentProcessor = make(map[string]goo.Type, 0)
 )
 
 func Register(components ...Component) {
 	for _, component := range components {
-		typ := GetType(component)
+		typ := goo.GetType(component)
 		if isSupportComponent(typ) {
-			if implementsComponentProcessorInterface(typ) {
-				registerComponentProcessor(typ.String(), typ)
+			fun := typ.(goo.Function)
+			retType := fun.GetFunctionReturnTypes()[0].(goo.Struct)
+			compressorType := goo.GetType((*ComponentProcessor)(nil)).(goo.Interface)
+			if retType.Implements(compressorType) {
+				registerComponentProcessor(typ.GetPackageFullName(), typ)
 			} else {
-				registerComponentType(typ.String(), typ)
+				registerComponentType(typ.GetPackageFullName(), typ)
 			}
 		} else {
 			panic("It supports only constructor functions")
@@ -31,72 +35,66 @@ func Register(components ...Component) {
 	}
 }
 
-func registerComponentType(name string, typ *Type) {
+func registerComponentType(name string, typ goo.Type) {
 	if _, ok := componentTypes[name]; ok {
 		panic("You have already registered the same component : " + name)
 	}
 	componentTypes[name] = typ
 }
 
-func registerComponentProcessor(name string, typ *Type) {
+func registerComponentProcessor(name string, typ goo.Type) {
 	if _, ok := componentProcessor[name]; ok {
 		panic("You have already registered the same component processor : " + name)
 	}
 	componentProcessor[name] = typ
 }
 
-func isSupportComponent(typ *Type) bool {
-	if IsFunc(typ) {
-		if typ.Typ.NumOut() > 1 || typ.Typ.NumOut() == 0 {
+func isSupportComponent(typ goo.Type) bool {
+	if typ.IsFunction() {
+		fun := typ.(goo.Function)
+		if fun.GetFunctionReturnTypeCount() != 1 {
 			panic("Constructor functions are only supported, that why's your function must have only one return type")
 		}
-		retType := GetFunctionFirstReturnType(typ)
-		if !IsStruct(retType) {
-			panic("Constructor functions must only return struct instances : " + retType.Typ.String())
+		retType := fun.GetFunctionParameterTypes()[0]
+		if !retType.IsStruct() {
+			panic("Constructor functions must only return struct instances : " + retType.GetPackageFullName())
 		}
 		return true
 	}
 	return false
 }
 
-func implementsComponentProcessorInterface(typ *Type) bool {
-	componentProcessorType := GetType((*ComponentProcessor)(nil))
-	retType := GetFunctionFirstReturnType(typ)
-	if retType.Typ.Implements(componentProcessorType.Typ) {
-		return true
-	}
-	return false
+func GetComponentTypes(requestedType goo.Type) ([]goo.Type, error) {
+	return GetComponentTypesWithParam(requestedType, nil)
 }
 
-func GetComponentTypes(typ *Type) ([]*Type, error) {
-	return GetComponentTypesWithParam(typ, nil)
-}
-
-func GetComponentTypesWithParam(typ *Type, paramTypes []*Type) ([]*Type, error) {
-	if typ == nil {
+func GetComponentTypesWithParam(requestedType goo.Type, paramTypes []goo.Type) ([]goo.Type, error) {
+	if requestedType == nil {
 		return nil, errors.New("type must not be null")
 	}
-	result := make([]*Type, 0)
+	if !requestedType.IsStruct() && !requestedType.IsInterface() {
+		panic("Requested type must be only interface or struct")
+	}
+	result := make([]goo.Type, 0)
 	for _, componentType := range componentTypes {
-		if IsFunc(componentType) {
-			funcReturnType := GetFunctionFirstReturnType(componentType)
-			if (IsInterface(typ) && funcReturnType.Typ.Implements(typ.Typ)) ||
-				(IsStruct(typ) && (typ.Typ == funcReturnType.Typ)) ||
-				(IsStruct(typ) && IsEmbeddedStruct(typ, funcReturnType)) {
-				if HasFunctionSameParametersWithGivenParameters(componentType, paramTypes) {
-					result = append(result, componentType)
-				}
+		fun := componentType.(goo.Function)
+		returnType := fun.GetFunctionReturnTypes()[0].(goo.Struct)
+		match := false
+		if requestedType.IsInterface() && returnType.Implements(requestedType.(goo.Interface)) {
+			match = true
+		} else if requestedType.IsStruct() {
+			if requestedType.GetGoType() == returnType.GetGoType() || requestedType.(goo.Struct).Embedded(returnType) {
+				match = true
 			}
-		} else if IsStruct(componentType) {
-			if IsStruct(typ) && (typ == componentType || IsEmbeddedStruct(typ, componentType)) {
-				result = append(result, componentType)
-			}
+		}
+		if match && HasFunctionSameParametersWithGivenParameters(componentType, paramTypes) {
+			result = append(result, componentType)
 		}
 	}
 	return result, nil
 }
 
-func VisitComponentTypes(callback func(string, *Type) error) (err error) {
+func VisitComponentTypes(callback func(string, goo.Type) error) (err error) {
 	for componentName := range componentTypes {
 		component := componentTypes[componentName]
 		err = callback(componentName, component)
@@ -107,7 +105,7 @@ func VisitComponentTypes(callback func(string, *Type) error) (err error) {
 	return nil
 }
 
-func VisitComponentProcessors(callback func(string, *Type) error) (err error) {
+func VisitComponentProcessors(callback func(string, goo.Type) error) (err error) {
 	for componentProcessorName := range componentProcessor {
 		componentProcessor := componentProcessor[componentProcessorName]
 		err = callback(componentProcessorName, componentProcessor)

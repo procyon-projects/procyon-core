@@ -2,15 +2,13 @@ package core
 
 import (
 	"errors"
-	"fmt"
-	"reflect"
-	"strconv"
+	"github.com/codnect/goo"
 	"sync"
 )
 
 type TypeConverter interface {
-	Support(sourceTyp *Type, targetTyp *Type) bool
-	Convert(source interface{}, sourceTyp *Type, targetTyp *Type) (interface{}, error)
+	Support(sourceTyp goo.Type, targetTyp goo.Type) bool
+	Convert(source interface{}, sourceTyp goo.Type, targetTyp goo.Type) (interface{}, error)
 }
 
 type StringToNumberConverter struct {
@@ -20,54 +18,17 @@ func NewStringToNumberConverter() StringToNumberConverter {
 	return StringToNumberConverter{}
 }
 
-func (converter StringToNumberConverter) Support(sourceTyp *Type, targetTyp *Type) bool {
-	if sourceTyp.Val.Kind() == reflect.String {
-		switch targetTyp.Val.Kind() {
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			return true
-		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			return true
-		case reflect.Float32, reflect.Float64:
-			return true
-		}
+func (converter StringToNumberConverter) Support(sourceTyp goo.Type, targetTyp goo.Type) bool {
+	if sourceTyp.IsString() && targetTyp.IsNumber() && goo.ComplexType == targetTyp.(goo.Number).GetNumberType() {
+		return true
 	}
 	return false
 }
 
-func (converter StringToNumberConverter) Convert(source interface{}, sourceTyp *Type, targetTyp *Type) (interface{}, error) {
-	if sourceTyp.Val.Kind() == reflect.String {
-		switch targetTyp.Val.Kind() {
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			result, err := strconv.ParseInt(source.(string), 10, 64)
-			if err != nil {
-				return nil, nil
-			}
-			if targetTyp.Val.OverflowInt(result) {
-				return nil, errors.New("incompatible int type " + sourceTyp.String() + " to " + targetTyp.String())
-			}
-			val := reflect.New(targetTyp.Typ)
-			val.SetInt(result)
-		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			result, err := strconv.ParseUint(source.(string), 10, 64)
-			if err != nil {
-				return nil, nil
-			}
-			if targetTyp.Val.OverflowUint(result) {
-				return nil, errors.New("incompatible uint type " + sourceTyp.String() + " to " + targetTyp.String())
-			}
-			val := reflect.New(targetTyp.Typ)
-			val.SetUint(result)
-		case reflect.Float32, reflect.Float64:
-			result, err := strconv.ParseFloat(source.(string), 64)
-			if err != nil {
-				return nil, nil
-			}
-			if targetTyp.Val.OverflowFloat(result) {
-				return nil, errors.New("incompatible float type " + sourceTyp.String() + " to " + targetTyp.String())
-			}
-			val := reflect.New(targetTyp.Typ)
-			val.SetFloat(result)
-		}
+func (converter StringToNumberConverter) Convert(source interface{}, sourceTyp goo.Type, targetTyp goo.Type) (interface{}, error) {
+	if sourceTyp.IsString() && targetTyp.IsNumber() && goo.ComplexType == targetTyp.(goo.Number).GetNumberType() {
+		number := targetTyp.(goo.Number)
+		return sourceTyp.(goo.String).ToNumber(source.(string), number)
 	}
 	return nil, errors.New("unsupported type")
 }
@@ -79,30 +40,16 @@ func NewNumberToStringConverter() NumberToStringConverter {
 	return NumberToStringConverter{}
 }
 
-func (converter NumberToStringConverter) Support(sourceTyp *Type, targetTyp *Type) bool {
-	if targetTyp.Val.Kind() == reflect.String {
-		switch sourceTyp.Val.Kind() {
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			return true
-		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			return true
-		case reflect.Float32, reflect.Float64:
-			return true
-		}
+func (converter NumberToStringConverter) Support(sourceTyp goo.Type, targetTyp goo.Type) bool {
+	if targetTyp.IsString() && sourceTyp.IsNumber() && goo.ComplexType == sourceTyp.(goo.Number).GetNumberType() {
+		return true
 	}
 	return false
 }
 
-func (converter NumberToStringConverter) Convert(source interface{}, sourceTyp *Type, targetTyp *Type) (interface{}, error) {
-	if targetTyp.Val.Kind() == reflect.String {
-		switch sourceTyp.Val.Kind() {
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			return fmt.Sprintf("%d", source), nil
-		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			return fmt.Sprintf("%d", source), nil
-		case reflect.Float32, reflect.Float64:
-			return fmt.Sprintf("%f", source), nil
-		}
+func (converter NumberToStringConverter) Convert(source interface{}, sourceTyp goo.Type, targetTyp goo.Type) (interface{}, error) {
+	if targetTyp.IsString() && sourceTyp.IsNumber() && goo.ComplexType == sourceTyp.(goo.Number).GetNumberType() {
+		return targetTyp.(goo.Number).ToString(source), nil
 	}
 	return nil, errors.New("unsupported type")
 }
@@ -114,26 +61,21 @@ func NewStringToBooleanConverter() StringToBooleanConverter {
 	return StringToBooleanConverter{}
 }
 
-func (converter StringToBooleanConverter) Support(sourceTyp *Type, targetTyp *Type) bool {
-	if sourceTyp.Val.Kind() == reflect.String {
-		switch targetTyp.Val.Kind() {
-		case reflect.Bool:
-			return true
-		}
+func (converter StringToBooleanConverter) Support(sourceTyp goo.Type, targetTyp goo.Type) bool {
+	if sourceTyp.IsString() && targetTyp.IsBoolean() {
+		return true
 	}
 	return false
 }
 
-func (converter StringToBooleanConverter) Convert(source interface{}, sourceTyp *Type, targetTyp *Type) (interface{}, error) {
-	if sourceTyp.Val.Kind() == reflect.String {
-		switch targetTyp.Val.Kind() {
-		case reflect.Bool:
-			result, err := strconv.ParseBool(source.(string))
-			if err != nil {
-				return nil, nil
+func (converter StringToBooleanConverter) Convert(source interface{}, sourceTyp goo.Type, targetTyp goo.Type) (result interface{}, err error) {
+	if sourceTyp.IsString() && targetTyp.IsBoolean() {
+		defer func() {
+			if r := recover(); r != nil {
+				err = errors.New(r.(string))
 			}
-			return result, nil
-		}
+		}()
+		return targetTyp.(goo.Boolean).ToBoolean(source.(string)), nil
 	}
 	return nil, errors.New("unsupported type")
 }
@@ -145,22 +87,16 @@ func NewBooleanToStringConverter() BooleanToStringConverter {
 	return BooleanToStringConverter{}
 }
 
-func (converter BooleanToStringConverter) Support(sourceTyp *Type, targetTyp *Type) bool {
-	if targetTyp.Val.Kind() == reflect.String {
-		switch sourceTyp.Val.Kind() {
-		case reflect.Bool:
-			return true
-		}
+func (converter BooleanToStringConverter) Support(sourceTyp goo.Type, targetTyp goo.Type) bool {
+	if targetTyp.IsString() && sourceTyp.IsBoolean() {
+		return true
 	}
 	return false
 }
 
-func (converter BooleanToStringConverter) Convert(source interface{}, sourceTyp *Type, targetTyp *Type) (interface{}, error) {
-	if targetTyp.Val.Kind() == reflect.String {
-		switch sourceTyp.Val.Kind() {
-		case reflect.Bool:
-			return strconv.FormatBool(source.(bool)), nil
-		}
+func (converter BooleanToStringConverter) Convert(source interface{}, sourceTyp goo.Type, targetTyp goo.Type) (interface{}, error) {
+	if targetTyp.IsString() && sourceTyp.IsBoolean() {
+		return sourceTyp.(goo.Boolean).ToString(source.(bool)), nil
 	}
 	return nil, errors.New("unsupported type")
 }
@@ -171,18 +107,18 @@ type TypeConverterRegistry interface {
 
 type TypeConverterService interface {
 	TypeConverterRegistry
-	CanConvert(source *Type, target *Type) bool
-	Convert(source interface{}, sourceTyp *Type, targetTyp *Type) (interface{}, error)
+	CanConvert(sourceTyp goo.Type, targetTyp goo.Type) bool
+	Convert(source interface{}, sourceTyp goo.Type, targetTyp goo.Type) (interface{}, error)
 }
 
 type DefaultTypeConverterService struct {
-	converters map[reflect.Type]TypeConverter
+	converters map[goo.Type]TypeConverter
 	mu         sync.RWMutex
 }
 
 func NewDefaultTypeConverterService() *DefaultTypeConverterService {
 	converterService := &DefaultTypeConverterService{
-		converters: make(map[reflect.Type]TypeConverter, 0),
+		converters: make(map[goo.Type]TypeConverter, 0),
 	}
 	converterService.registerDefaultConverters()
 	return converterService
@@ -197,11 +133,11 @@ func (cs *DefaultTypeConverterService) registerDefaultConverters() {
 	cs.RegisterConverter(NewStringToBooleanConverter())
 }
 
-func (cs *DefaultTypeConverterService) CanConvert(source *Type, target *Type) bool {
+func (cs *DefaultTypeConverterService) CanConvert(sourceTyp goo.Type, targetTyp goo.Type) bool {
 	var result bool
 	cs.mu.Lock()
 	for _, converter := range cs.converters {
-		if converter.Support(source, target) {
+		if converter.Support(sourceTyp, targetTyp) {
 			result = true
 			break
 		}
@@ -210,7 +146,7 @@ func (cs *DefaultTypeConverterService) CanConvert(source *Type, target *Type) bo
 	return result
 }
 
-func (cs *DefaultTypeConverterService) Convert(source interface{}, sourceTyp *Type, targetTyp *Type) (result interface{}, err error) {
+func (cs *DefaultTypeConverterService) Convert(source interface{}, sourceTyp goo.Type, targetTyp goo.Type) (result interface{}, err error) {
 	var typConverter TypeConverter
 	cs.mu.Lock()
 	for _, converter := range cs.converters {
@@ -229,7 +165,10 @@ func (cs *DefaultTypeConverterService) Convert(source interface{}, sourceTyp *Ty
 }
 
 func (cs *DefaultTypeConverterService) RegisterConverter(converter TypeConverter) {
+	if converter == nil {
+		panic("converter must not be nil")
+	}
 	cs.mu.Lock()
-	cs.converters[GetType(converter).Typ] = converter
+	cs.converters[goo.GetType(converter)] = converter
 	cs.mu.Unlock()
 }
