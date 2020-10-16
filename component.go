@@ -55,7 +55,7 @@ func isSupportComponent(typ goo.Type) bool {
 		if fun.GetFunctionReturnTypeCount() != 1 {
 			panic("Constructor functions are only supported, that why's your function must have only one return type")
 		}
-		retType := fun.GetFunctionParameterTypes()[0]
+		retType := fun.GetFunctionReturnTypes()[0]
 		if !retType.IsStruct() {
 			panic("Constructor functions must only return struct instances : " + retType.GetPackageFullName())
 		}
@@ -94,7 +94,7 @@ func GetComponentTypesWithParam(requestedType goo.Type, paramTypes []goo.Type) (
 	return result, nil
 }
 
-func VisitComponentTypes(callback func(string, goo.Type) error) (err error) {
+func ForEachComponentType(callback func(string, goo.Type) error) (err error) {
 	for componentName := range componentTypes {
 		component := componentTypes[componentName]
 		err = callback(componentName, component)
@@ -105,7 +105,7 @@ func VisitComponentTypes(callback func(string, goo.Type) error) (err error) {
 	return nil
 }
 
-func VisitComponentProcessors(callback func(string, goo.Type) error) (err error) {
+func ForEachComponentProcessor(callback func(string, goo.Type) error) (err error) {
 	for componentProcessorName := range componentProcessor {
 		componentProcessor := componentProcessor[componentProcessorName]
 		err = callback(componentProcessorName, componentProcessor)
