@@ -27,7 +27,7 @@ func Register(components ...Component) {
 			if retType.Implements(compressorType) {
 				registerComponentProcessor(typ.GetFullName(), typ)
 			} else {
-				GetFullName()(typ.GetFullName(), typ)
+				registerComponentType(typ.GetFullName(), typ)
 			}
 		} else {
 			panic("It supports only constructor functions")
