@@ -69,7 +69,7 @@ func HasFunctionSameParametersWithGivenParameters(componentType goo.Type, parame
 	} else if len(parameterTypes) != functionParameterCount || parameterTypes == nil && functionParameterCount != 0 {
 		return false
 	}
-	inputParameterTypes := fun.GetFunctionReturnTypes()
+	inputParameterTypes := fun.GetFunctionParameterTypes()
 	for index, inputParameterType := range inputParameterTypes {
 		if !inputParameterType.Equals(parameterTypes[index]) {
 			return false
