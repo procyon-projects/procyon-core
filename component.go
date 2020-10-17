@@ -83,7 +83,7 @@ func GetComponentTypesWithParam(requestedType goo.Type, paramTypes []goo.Type) (
 		if requestedType.IsInterface() && returnType.Implements(requestedType.(goo.Interface)) {
 			match = true
 		} else if requestedType.IsStruct() {
-			if requestedType.GetGoType() == returnType.GetGoType() || requestedType.(goo.Struct).Embedded(returnType) {
+			if requestedType.GetGoType() == returnType.GetGoType() || requestedType.(goo.Struct).EmbeddedStruct(returnType) {
 				match = true
 			}
 		}
