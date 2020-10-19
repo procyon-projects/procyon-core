@@ -62,7 +62,7 @@ func GetMapKeys(mapObj interface{}) []string {
 }
 
 func HasFunctionSameParametersWithGivenParameters(componentType goo.Type, parameterTypes []goo.Type) bool {
-	fun := componentType.(goo.Function)
+	fun := componentType.ToFunctionType()
 	functionParameterCount := fun.GetFunctionParameterCount()
 	if parameterTypes == nil && functionParameterCount == 0 {
 		return true

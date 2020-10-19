@@ -21,9 +21,9 @@ func Register(components ...Component) {
 	for _, component := range components {
 		typ := goo.GetType(component)
 		if isSupportComponent(typ) {
-			fun := typ.(goo.Function)
-			retType := fun.GetFunctionReturnTypes()[0].(goo.Struct)
-			compressorType := goo.GetType((*ComponentProcessor)(nil)).(goo.Interface)
+			fun := typ.ToFunctionType()
+			retType := fun.GetFunctionReturnTypes()[0].ToStructType()
+			compressorType := goo.GetType((*ComponentProcessor)(nil)).ToInterfaceType()
 			if retType.Implements(compressorType) {
 				registerComponentProcessor(typ.GetFullName(), typ)
 			} else {
@@ -51,7 +51,7 @@ func registerComponentProcessor(name string, typ goo.Type) {
 
 func isSupportComponent(typ goo.Type) bool {
 	if typ.IsFunction() {
-		fun := typ.(goo.Function)
+		fun := typ.ToFunctionType()
 		if fun.GetFunctionReturnTypeCount() != 1 {
 			panic("Constructor functions are only supported, that why's your function must have only one return type")
 		}
@@ -77,13 +77,13 @@ func GetComponentTypesWithParam(requestedType goo.Type, paramTypes []goo.Type) (
 	}
 	result := make([]goo.Type, 0)
 	for _, componentType := range componentTypes {
-		fun := componentType.(goo.Function)
-		returnType := fun.GetFunctionReturnTypes()[0].(goo.Struct)
+		fun := componentType.ToFunctionType()
+		returnType := fun.GetFunctionReturnTypes()[0].ToStructType()
 		match := false
-		if requestedType.IsInterface() && returnType.Implements(requestedType.(goo.Interface)) {
+		if requestedType.IsInterface() && returnType.Implements(requestedType.ToInterfaceType()) {
 			match = true
 		} else if requestedType.IsStruct() {
-			if requestedType.GetGoType() == returnType.GetGoType() || requestedType.(goo.Struct).EmbeddedStruct(returnType) {
+			if requestedType.GetGoType() == returnType.GetGoType() || requestedType.ToStructType().EmbeddedStruct(returnType) {
 				match = true
 			}
 		}

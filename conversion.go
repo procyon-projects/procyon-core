@@ -19,16 +19,16 @@ func NewStringToNumberConverter() StringToNumberConverter {
 }
 
 func (converter StringToNumberConverter) Support(sourceTyp goo.Type, targetTyp goo.Type) bool {
-	if sourceTyp.IsString() && targetTyp.IsNumber() && goo.ComplexType == targetTyp.(goo.Number).GetNumberType() {
+	if sourceTyp.IsString() && targetTyp.IsNumber() && goo.ComplexType == targetTyp.ToNumberType().GetNumberType() {
 		return true
 	}
 	return false
 }
 
 func (converter StringToNumberConverter) Convert(source interface{}, sourceTyp goo.Type, targetTyp goo.Type) (interface{}, error) {
-	if sourceTyp.IsString() && targetTyp.IsNumber() && goo.ComplexType == targetTyp.(goo.Number).GetNumberType() {
-		number := targetTyp.(goo.Number)
-		return sourceTyp.(goo.String).ToNumber(source.(string), number)
+	if sourceTyp.IsString() && targetTyp.IsNumber() && goo.ComplexType == targetTyp.ToNumberType().GetNumberType() {
+		number := targetTyp.ToNumberType()
+		return sourceTyp.ToStringType().ToNumber(source.(string), number)
 	}
 	return nil, errors.New("unsupported type")
 }
@@ -41,15 +41,15 @@ func NewNumberToStringConverter() NumberToStringConverter {
 }
 
 func (converter NumberToStringConverter) Support(sourceTyp goo.Type, targetTyp goo.Type) bool {
-	if targetTyp.IsString() && sourceTyp.IsNumber() && goo.ComplexType == sourceTyp.(goo.Number).GetNumberType() {
+	if targetTyp.IsString() && sourceTyp.IsNumber() && goo.ComplexType == sourceTyp.ToNumberType().GetNumberType() {
 		return true
 	}
 	return false
 }
 
 func (converter NumberToStringConverter) Convert(source interface{}, sourceTyp goo.Type, targetTyp goo.Type) (interface{}, error) {
-	if targetTyp.IsString() && sourceTyp.IsNumber() && goo.ComplexType == sourceTyp.(goo.Number).GetNumberType() {
-		return targetTyp.(goo.Number).ToString(source), nil
+	if targetTyp.IsString() && sourceTyp.IsNumber() && goo.ComplexType == sourceTyp.ToNumberType().GetNumberType() {
+		return targetTyp.ToNumberType().ToString(source), nil
 	}
 	return nil, errors.New("unsupported type")
 }
@@ -75,7 +75,7 @@ func (converter StringToBooleanConverter) Convert(source interface{}, sourceTyp 
 				err = errors.New(r.(string))
 			}
 		}()
-		return targetTyp.(goo.Boolean).ToBoolean(source.(string)), nil
+		return targetTyp.ToBooleanType().ToBoolean(source.(string)), nil
 	}
 	return nil, errors.New("unsupported type")
 }
@@ -96,7 +96,7 @@ func (converter BooleanToStringConverter) Support(sourceTyp goo.Type, targetTyp 
 
 func (converter BooleanToStringConverter) Convert(source interface{}, sourceTyp goo.Type, targetTyp goo.Type) (interface{}, error) {
 	if targetTyp.IsString() && sourceTyp.IsBoolean() {
-		return sourceTyp.(goo.Boolean).ToString(source.(bool)), nil
+		return sourceTyp.ToBooleanType().ToString(source.(bool)), nil
 	}
 	return nil, errors.New("unsupported type")
 }
