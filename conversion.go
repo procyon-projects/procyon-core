@@ -19,14 +19,14 @@ func NewStringToNumberConverter() StringToNumberConverter {
 }
 
 func (converter StringToNumberConverter) Support(sourceTyp goo.Type, targetTyp goo.Type) bool {
-	if sourceTyp.IsString() && targetTyp.IsNumber() && goo.ComplexType == targetTyp.ToNumberType().GetNumberType() {
+	if sourceTyp.IsString() && targetTyp.IsNumber() && goo.ComplexType == targetTyp.ToNumberType().GetType() {
 		return true
 	}
 	return false
 }
 
 func (converter StringToNumberConverter) Convert(source interface{}, sourceTyp goo.Type, targetTyp goo.Type) (interface{}, error) {
-	if sourceTyp.IsString() && targetTyp.IsNumber() && goo.ComplexType == targetTyp.ToNumberType().GetNumberType() {
+	if sourceTyp.IsString() && targetTyp.IsNumber() && goo.ComplexType == targetTyp.ToNumberType().GetType() {
 		number := targetTyp.ToNumberType()
 		return sourceTyp.ToStringType().ToNumber(source.(string), number)
 	}
@@ -41,14 +41,14 @@ func NewNumberToStringConverter() NumberToStringConverter {
 }
 
 func (converter NumberToStringConverter) Support(sourceTyp goo.Type, targetTyp goo.Type) bool {
-	if targetTyp.IsString() && sourceTyp.IsNumber() && goo.ComplexType == sourceTyp.ToNumberType().GetNumberType() {
+	if targetTyp.IsString() && sourceTyp.IsNumber() && goo.ComplexType == sourceTyp.ToNumberType().GetType() {
 		return true
 	}
 	return false
 }
 
 func (converter NumberToStringConverter) Convert(source interface{}, sourceTyp goo.Type, targetTyp goo.Type) (interface{}, error) {
-	if targetTyp.IsString() && sourceTyp.IsNumber() && goo.ComplexType == sourceTyp.ToNumberType().GetNumberType() {
+	if targetTyp.IsString() && sourceTyp.IsNumber() && goo.ComplexType == sourceTyp.ToNumberType().GetType() {
 		return targetTyp.ToNumberType().ToString(source), nil
 	}
 	return nil, errors.New("unsupported type")
