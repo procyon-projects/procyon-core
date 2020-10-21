@@ -19,14 +19,14 @@ func NewStringToNumberConverter() StringToNumberConverter {
 }
 
 func (converter StringToNumberConverter) Support(sourceTyp goo.Type, targetTyp goo.Type) bool {
-	if sourceTyp.IsString() && targetTyp.IsNumber() && goo.ComplexType == targetTyp.ToNumberType().GetType() {
+	if sourceTyp.IsString() && targetTyp.IsNumber() && goo.ComplexType != targetTyp.ToNumberType().GetType() {
 		return true
 	}
 	return false
 }
 
 func (converter StringToNumberConverter) Convert(source interface{}, sourceTyp goo.Type, targetTyp goo.Type) (interface{}, error) {
-	if sourceTyp.IsString() && targetTyp.IsNumber() && goo.ComplexType == targetTyp.ToNumberType().GetType() {
+	if sourceTyp.IsString() && targetTyp.IsNumber() && goo.ComplexType != targetTyp.ToNumberType().GetType() {
 		number := targetTyp.ToNumberType()
 		return sourceTyp.ToStringType().ToNumber(source.(string), number)
 	}
@@ -41,14 +41,14 @@ func NewNumberToStringConverter() NumberToStringConverter {
 }
 
 func (converter NumberToStringConverter) Support(sourceTyp goo.Type, targetTyp goo.Type) bool {
-	if targetTyp.IsString() && sourceTyp.IsNumber() && goo.ComplexType == sourceTyp.ToNumberType().GetType() {
+	if targetTyp.IsString() && sourceTyp.IsNumber() && goo.ComplexType != targetTyp.ToNumberType().GetType() {
 		return true
 	}
 	return false
 }
 
 func (converter NumberToStringConverter) Convert(source interface{}, sourceTyp goo.Type, targetTyp goo.Type) (interface{}, error) {
-	if targetTyp.IsString() && sourceTyp.IsNumber() && goo.ComplexType == sourceTyp.ToNumberType().GetType() {
+	if targetTyp.IsString() && sourceTyp.IsNumber() && goo.ComplexType != sourceTyp.ToNumberType().GetType() {
 		return targetTyp.ToNumberType().ToString(source), nil
 	}
 	return nil, errors.New("unsupported type")
@@ -112,13 +112,13 @@ type TypeConverterService interface {
 }
 
 type DefaultTypeConverterService struct {
-	converters map[goo.Type]TypeConverter
+	converters map[string]TypeConverter
 	mu         sync.RWMutex
 }
 
 func NewDefaultTypeConverterService() *DefaultTypeConverterService {
 	converterService := &DefaultTypeConverterService{
-		converters: make(map[goo.Type]TypeConverter, 0),
+		converters: make(map[string]TypeConverter, 0),
 	}
 	converterService.registerDefaultConverters()
 	return converterService
@@ -152,12 +152,15 @@ func (cs *DefaultTypeConverterService) Convert(source interface{}, sourceTyp goo
 	for _, converter := range cs.converters {
 		if converter.Support(sourceTyp, targetTyp) {
 			typConverter = converter
+			break
 		}
 	}
 	cs.mu.Unlock()
 	if typConverter != nil {
 		defer func() {
-			err = errors.New("converting error has just occurred")
+			if r := recover(); r != nil {
+				err = errors.New("converting error has just occurred")
+			}
 		}()
 		result, err = typConverter.Convert(source, sourceTyp, targetTyp)
 	}
@@ -169,6 +172,6 @@ func (cs *DefaultTypeConverterService) RegisterConverter(converter TypeConverter
 		panic("converter must not be nil")
 	}
 	cs.mu.Lock()
-	cs.converters[goo.GetType(converter)] = converter
+	cs.converters[goo.GetType(converter).GetFullName()] = converter
 	cs.mu.Unlock()
 }
