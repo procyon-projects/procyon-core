@@ -1,2 +1,2 @@
 # procyon-core
-Procyon Core
+![alt text](https://goreportcard.com/badge/github.com/procyon-projects/procyon-core)
