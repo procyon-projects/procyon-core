@@ -30,5 +30,5 @@ func (resolver *SimplePropertyResolver) GetProperty(name string, defaultValue st
 			return propertySource.GetProperty(name).(string)
 		}
 	}
-	return nil
+	return defaultValue
 }
