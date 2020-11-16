@@ -10,6 +10,6 @@ func NewCommandLineArgsParseError(errorMessage string) *CommandLineArgsParseErro
 	}
 }
 
-func (e CommandLineArgsParseError) Error() string {
+func (e *CommandLineArgsParseError) Error() string {
 	return e.message
 }

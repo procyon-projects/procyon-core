@@ -1,118 +1,11 @@
 package core
 
-import (
-	"errors"
-)
-
 type PropertySource interface {
 	GetName() string
 	GetSource() interface{}
 	GetProperty(name string) interface{}
 	ContainsProperty(name string) bool
-}
-
-type EnumerablePropertySource interface {
-	PropertySource
 	GetPropertyNames() []string
-}
-
-type MapPropertySource struct {
-	name   string
-	source map[string]interface{}
-}
-
-func NewMapPropertySource(name string, source map[string]interface{}) *MapPropertySource {
-	mapPropertySource := &MapPropertySource{
-		name:   name,
-		source: source,
-	}
-	return mapPropertySource
-}
-
-func (mapSource *MapPropertySource) GetName() string {
-	return mapSource.name
-}
-
-func (mapSource *MapPropertySource) GetSource() interface{} {
-	return mapSource.source
-}
-
-func (mapSource *MapPropertySource) GetProperty(name string) interface{} {
-	return mapSource.source[name]
-}
-
-func (mapSource *MapPropertySource) ContainsProperty(name string) bool {
-	return mapSource.source[name] != nil
-}
-
-func (mapSource *MapPropertySource) GetPropertyNames() []string {
-	return GetMapKeys(mapSource.source)
-}
-
-type CompositePropertySource struct {
-	name    string
-	sources []PropertySource
-}
-
-func NewCompositePropertySource(name string) *CompositePropertySource {
-	compositePropertySource := &CompositePropertySource{
-		name:    name,
-		sources: make([]PropertySource, 0),
-	}
-	return compositePropertySource
-}
-
-func (compositeSource *CompositePropertySource) GetName() string {
-	return compositeSource.name
-}
-
-func (compositeSource *CompositePropertySource) GetSource() interface{} {
-	return compositeSource.sources
-}
-
-func (compositeSource *CompositePropertySource) GetProperty(name string) interface{} {
-	for _, propertySource := range compositeSource.sources {
-		property := propertySource.GetProperty(name)
-		if property != nil {
-			return property
-		}
-	}
-	return nil
-}
-
-func (compositeSource *CompositePropertySource) ContainsProperty(name string) bool {
-	for _, propertySource := range compositeSource.sources {
-		if propertySource.ContainsProperty(name) {
-			return true
-		}
-	}
-	return false
-}
-
-func (compositeSource *CompositePropertySource) GetPropertyNames() []string {
-	names := make([]string, 0)
-	for _, propertySource := range compositeSource.sources {
-		if source, ok := propertySource.(EnumerablePropertySource); ok {
-			names = append(names, source.GetPropertyNames()...)
-		} else {
-			panic("Property source does not support except EnumerablePropertySource")
-		}
-	}
-	return names
-}
-
-func (compositeSource *CompositePropertySource) AddPropertySource(propertySource PropertySource) {
-	compositeSource.sources = append(compositeSource.sources, propertySource)
-}
-
-func (compositeSource *CompositePropertySource) AddFirstPropertySource(propertySource PropertySource) {
-	newPropertySources := make([]PropertySource, 0)
-	newPropertySources[0] = propertySource
-	compositeSource.sources = append(newPropertySources, compositeSource.sources[0:]...)
-}
-
-func (compositeSource *CompositePropertySource) GetPropertySources() []PropertySource {
-	return compositeSource.sources
 }
 
 type PropertySources struct {
@@ -125,13 +18,13 @@ func NewPropertySources() *PropertySources {
 	}
 }
 
-func (o *PropertySources) Get(name string) (PropertySource, error) {
+func (o *PropertySources) Get(name string) (PropertySource, bool) {
 	for _, source := range o.sources {
 		if source.GetName() == name {
-			return source, nil
+			return source, true
 		}
 	}
-	return nil, errors.New("Property not found : " + name)
+	return nil, false
 }
 
 func (o *PropertySources) Add(propertySource PropertySource) {

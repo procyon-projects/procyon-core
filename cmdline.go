@@ -2,7 +2,6 @@ package core
 
 import "strings"
 
-const CmdlinePropertySourceName = "cmdlineArgs"
 const NonOptionArgsPropertyName = "nonOptionArgs"
 
 type CommandLinePropertySource interface {

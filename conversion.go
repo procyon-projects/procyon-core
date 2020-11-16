@@ -70,11 +70,6 @@ func (converter StringToBooleanConverter) Support(sourceTyp goo.Type, targetTyp 
 
 func (converter StringToBooleanConverter) Convert(source interface{}, sourceTyp goo.Type, targetTyp goo.Type) (result interface{}, err error) {
 	if sourceTyp.IsString() && targetTyp.IsBoolean() {
-		defer func() {
-			if r := recover(); r != nil {
-				err = errors.New(r.(string))
-			}
-		}()
 		return targetTyp.ToBooleanType().ToBoolean(source.(string)), nil
 	}
 	return nil, errors.New("unsupported type")
@@ -157,11 +152,6 @@ func (cs *DefaultTypeConverterService) Convert(source interface{}, sourceTyp goo
 	}
 	cs.mu.Unlock()
 	if typConverter != nil {
-		defer func() {
-			if r := recover(); r != nil {
-				err = errors.New("converting error has just occurred")
-			}
-		}()
 		result, err = typConverter.Convert(source, sourceTyp, targetTyp)
 	}
 	return
