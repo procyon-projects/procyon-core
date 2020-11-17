@@ -2,7 +2,6 @@ package core
 
 import (
 	"crypto/rand"
-	"encoding/binary"
 	"io"
 	"net"
 	"sync"
@@ -37,11 +36,6 @@ func init() {
 	} else {
 		randomBits(nodeID[:])
 	}
-}
-
-func GenerateUUID(uuid []byte) {
-	timeMu.Lock()
-	now := uint64(time.Now().UnixNano()/100) + g1582ns100
 
 	if clockSeq == 0 {
 		var b [2]byte
@@ -53,9 +47,16 @@ func GenerateUUID(uuid []byte) {
 			lastTime = 0
 		}
 	}
+}
 
+const hexTable = "0123456789abcdef"
+
+func GenerateUUID(uuidBuffer []byte) {
+	timeMu.Lock()
+	now := uint64(time.Now().UnixNano()/100) + g1582ns100
 	if now <= lastTime {
 		clockSeq = ((clockSeq + 1) & 0x3fff) | 0x8000
+
 	}
 	lastTime = now
 	timeMu.Unlock()
@@ -65,11 +66,74 @@ func GenerateUUID(uuid []byte) {
 	timeHi := uint16((now >> 48) & 0x0fff)
 	timeHi |= 0x1000
 
-	binary.BigEndian.PutUint32(uuid[0:], timeLow)
-	binary.BigEndian.PutUint16(uuid[4:], timeMid)
-	binary.BigEndian.PutUint16(uuid[6:], timeHi)
-	binary.BigEndian.PutUint16(uuid[8:], clockSeq)
-	copy(uuid[10:], nodeID[:])
+	b := byte(timeLow >> 24)
+	uuidBuffer[0] = hexTable[b>>4]
+	uuidBuffer[1] = hexTable[b&0x0f]
+
+	b = byte(timeLow >> 16)
+	uuidBuffer[2] = hexTable[b>>4]
+	uuidBuffer[3] = hexTable[b&0x0f]
+
+	b = byte(timeLow >> 8)
+	uuidBuffer[4] = hexTable[b>>4]
+	uuidBuffer[5] = hexTable[b&0x0f]
+
+	b = byte(timeLow)
+	uuidBuffer[6] = hexTable[b>>4]
+	uuidBuffer[7] = hexTable[b&0x0f]
+
+	uuidBuffer[8] = '-'
+
+	b = byte(timeMid >> 8)
+	uuidBuffer[9] = hexTable[b>>4]
+	uuidBuffer[10] = hexTable[b&0x0f]
+
+	b = byte(timeMid)
+	uuidBuffer[11] = hexTable[b>>4]
+	uuidBuffer[12] = hexTable[b&0x0f]
+
+	uuidBuffer[13] = '-'
+	b = byte(timeHi >> 8)
+	uuidBuffer[14] = hexTable[b>>4]
+	uuidBuffer[15] = hexTable[b&0x0f]
+
+	b = byte(timeHi)
+	uuidBuffer[16] = hexTable[b>>4]
+	uuidBuffer[17] = hexTable[b&0x0f]
+
+	uuidBuffer[18] = '-'
+	b = byte(clockSeq >> 8)
+	uuidBuffer[19] = hexTable[b>>4]
+	uuidBuffer[20] = hexTable[b&0x0f]
+
+	b = byte(clockSeq)
+	uuidBuffer[21] = hexTable[b>>4]
+	uuidBuffer[22] = hexTable[b&0x0f]
+
+	uuidBuffer[23] = '-'
+	b = nodeID[0]
+	uuidBuffer[24] = hexTable[b>>4]
+	uuidBuffer[25] = hexTable[b&0x0f]
+
+	b = nodeID[1]
+	uuidBuffer[26] = hexTable[b>>4]
+	uuidBuffer[27] = hexTable[b&0x0f]
+
+	b = nodeID[2]
+	uuidBuffer[28] = hexTable[b>>4]
+	uuidBuffer[29] = hexTable[b&0x0f]
+
+	b = nodeID[3]
+	uuidBuffer[30] = hexTable[b>>4]
+	uuidBuffer[31] = hexTable[b&0x0f]
+
+	b = nodeID[4]
+	uuidBuffer[32] = hexTable[b>>4]
+	uuidBuffer[33] = hexTable[b&0x0f]
+
+	b = nodeID[5]
+	uuidBuffer[34] = hexTable[b>>4]
+	uuidBuffer[35] = hexTable[b&0x0f]
 }
 
 func getHardwareInterface() (string, []byte) {
