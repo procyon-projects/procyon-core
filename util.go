@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/codnect/goo"
 	"time"
+	"unsafe"
 )
 
 type TaskWatch struct {
@@ -76,4 +77,8 @@ func HasFunctionSameParametersWithGivenParameters(componentType goo.Type, parame
 		}
 	}
 	return true
+}
+
+func BytesToStr(bytes []byte) string {
+	return *(*string)(unsafe.Pointer(&bytes))
 }
