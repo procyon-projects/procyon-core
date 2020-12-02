@@ -1,5 +1,7 @@
 package core
 
+import "github.com/codnect/goo"
+
 type CommandLineArgs struct {
 	optionArgs    map[string][]string
 	nonOptionArgs []string
@@ -20,7 +22,12 @@ func (args CommandLineArgs) addOptionArgs(name string, value string) {
 }
 
 func (args CommandLineArgs) getOptionNames() []string {
-	return GetMapKeys(args.optionArgs)
+	argMapKeys := goo.GetType(args.optionArgs).GetGoValue().MapKeys()
+	mapKeys := make([]string, len(argMapKeys))
+	for i := 0; i < len(argMapKeys); i++ {
+		mapKeys[i] = argMapKeys[i].String()
+	}
+	return mapKeys
 }
 
 func (args CommandLineArgs) containsOption(name string) bool {

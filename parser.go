@@ -1,13 +1,10 @@
 package core
 
 import (
+	"errors"
 	"flag"
 	"strings"
 )
-
-type CommandLineArgsParser interface {
-	Parse(args []string) (CommandLineArgs, *CommandLineArgsParseError)
-}
 
 type SimpleCommandLineArgsParser struct {
 }
@@ -16,13 +13,13 @@ func NewCommandLineArgsParser() SimpleCommandLineArgsParser {
 	return SimpleCommandLineArgsParser{}
 }
 
-func (parser SimpleCommandLineArgsParser) Parse(args []string) (CommandLineArgs, *CommandLineArgsParseError) {
+func (parser SimpleCommandLineArgsParser) Parse(args []string) (CommandLineArgs, error) {
 	cmdLineArgs := NewCommandLineArgs()
 
-	appArgumentFlagSet := flag.NewFlagSet("ProcyonApplicationArguments", flag.ExitOnError)
+	appArgumentFlagSet := flag.NewFlagSet("ProcyonApplicationArguments", flag.ContinueOnError)
 	err := appArgumentFlagSet.Parse(args)
 	if err != nil {
-		return cmdLineArgs, NewCommandLineArgsParseError(err.Error())
+		return cmdLineArgs, err
 	}
 
 	for _, arg := range appArgumentFlagSet.Args() {
@@ -40,7 +37,7 @@ func (parser SimpleCommandLineArgsParser) Parse(args []string) (CommandLineArgs,
 			optionName = strings.TrimSpace(optionName)
 			optionValue = strings.TrimSpace(optionValue)
 			if optionName == "" {
-				return cmdLineArgs, NewCommandLineArgsParseError("Invalid argument syntax : " + arg)
+				return cmdLineArgs, errors.New("Invalid argument syntax : " + arg)
 			}
 			cmdLineArgs.addOptionArgs(optionName, optionValue)
 		} else {

@@ -41,7 +41,7 @@ func NewNumberToStringConverter() NumberToStringConverter {
 }
 
 func (converter NumberToStringConverter) Support(sourceTyp goo.Type, targetTyp goo.Type) bool {
-	if targetTyp.IsString() && sourceTyp.IsNumber() && goo.ComplexType != targetTyp.ToNumberType().GetType() {
+	if targetTyp.IsString() && sourceTyp.IsNumber() && goo.ComplexType != sourceTyp.ToNumberType().GetType() {
 		return true
 	}
 	return false
@@ -49,7 +49,7 @@ func (converter NumberToStringConverter) Support(sourceTyp goo.Type, targetTyp g
 
 func (converter NumberToStringConverter) Convert(source interface{}, sourceTyp goo.Type, targetTyp goo.Type) (interface{}, error) {
 	if targetTyp.IsString() && sourceTyp.IsNumber() && goo.ComplexType != sourceTyp.ToNumberType().GetType() {
-		return targetTyp.ToNumberType().ToString(source), nil
+		return sourceTyp.ToNumberType().ToString(source), nil
 	}
 	return nil, errors.New("unsupported type")
 }

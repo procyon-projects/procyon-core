@@ -53,15 +53,6 @@ func (watch *TaskWatch) GetTotalTime() int64 {
 	return watch.totalTime.Nanoseconds()
 }
 
-func GetMapKeys(mapObj interface{}) []string {
-	argMapKeys := goo.GetType(mapObj).GetGoValue().MapKeys()
-	mapKeys := make([]string, len(argMapKeys))
-	for i := 0; i < len(argMapKeys); i++ {
-		mapKeys[i] = argMapKeys[i].String()
-	}
-	return mapKeys
-}
-
 func HasFunctionSameParametersWithGivenParameters(componentType goo.Type, parameterTypes []goo.Type) bool {
 	fun := componentType.ToFunctionType()
 	functionParameterCount := fun.GetFunctionParameterCount()
