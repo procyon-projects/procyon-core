@@ -2,6 +2,7 @@ package core
 
 import "strings"
 
+const ProcyonApplicationCommandLinePropertySource = "ProcyonApplicationCommandLinePropertySource"
 const NonOptionArgsPropertyName = "nonOptionArgs"
 
 type CommandLinePropertySource interface {
@@ -21,6 +22,7 @@ func NewSimpleCommandLinePropertySource(args []string) SimpleCommandLineProperty
 		panic(err)
 	}
 	cmdlinePropertySource := SimpleCommandLinePropertySource{
+		name:   ProcyonApplicationCommandLinePropertySource,
 		source: cmdLineArgs,
 	}
 	return cmdlinePropertySource

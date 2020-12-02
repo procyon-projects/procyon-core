@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestAddOptionArgs(t *testing.T) {
+func TestCommandLineArgs_AddOptionArgs(t *testing.T) {
 	commandLineArgs := NewCommandLineArgs()
 	commandLineArgs.addOptionArgs("test-arg-1", "test-arg-value-1")
 	commandLineArgs.addOptionArgs("test-arg-2", "test-arg-value-2")
@@ -17,7 +17,7 @@ func TestAddOptionArgs(t *testing.T) {
 	assert.NotContains(t, commandLineArgs.optionArgs, "test-arg-3")
 }
 
-func TestGetOptionNames(t *testing.T) {
+func TestCommandLineArgs_GetOptionNames(t *testing.T) {
 	commandLineArgs := NewCommandLineArgs()
 	commandLineArgs.addOptionArgs("test-arg-1", "test-arg-value-1")
 	commandLineArgs.addOptionArgs("test-arg-2", "test-arg-value-2")
@@ -27,7 +27,7 @@ func TestGetOptionNames(t *testing.T) {
 	assert.Contains(t, commandLineArgs.getOptionNames(), "test-arg-2")
 }
 
-func TestContainsOption(t *testing.T) {
+func TestCommandLineArgs_ContainsOption(t *testing.T) {
 	commandLineArgs := NewCommandLineArgs()
 	commandLineArgs.addOptionArgs("test-arg-1", "test-arg-value-1")
 	commandLineArgs.addOptionArgs("test-arg-2", "test-arg-value-2")
@@ -37,7 +37,7 @@ func TestContainsOption(t *testing.T) {
 	assert.False(t, commandLineArgs.containsOption("test-arg-3"))
 }
 
-func TestGetOptionValues(t *testing.T) {
+func TestCommandLineArgs_GetOptionValues(t *testing.T) {
 	commandLineArgs := NewCommandLineArgs()
 	commandLineArgs.addOptionArgs("test-arg-1", "test-arg-value-1")
 	commandLineArgs.addOptionArgs("test-arg-2", "test-arg-value-2")
@@ -51,7 +51,7 @@ func TestGetOptionValues(t *testing.T) {
 	assert.Contains(t, commandLineArgs.getOptionValues("test-arg-2"), "test-arg-value-3")
 }
 
-func TestAddNonOptionArgs(t *testing.T) {
+func TestCommandLineArgs_AddNonOptionArgs(t *testing.T) {
 	commandLineArgs := NewCommandLineArgs()
 	commandLineArgs.addNonOptionArgs("test-nonoption-arg-1")
 	commandLineArgs.addNonOptionArgs("test-nonoption-arg-2")
@@ -62,7 +62,7 @@ func TestAddNonOptionArgs(t *testing.T) {
 	assert.Contains(t, commandLineArgs.nonOptionArgs, "test-nonoption-arg-2")
 }
 
-func TestGetNonOptionArgs(t *testing.T) {
+func TestCommandLineArgs_GetNonOptionArgs(t *testing.T) {
 	commandLineArgs := NewCommandLineArgs()
 	commandLineArgs.addNonOptionArgs("test-nonoption-arg-1")
 	commandLineArgs.addNonOptionArgs("test-nonoption-arg-2")

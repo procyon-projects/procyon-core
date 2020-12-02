@@ -6,13 +6,20 @@ import (
 	"testing"
 )
 
-func TestParse(t *testing.T) {
+func getTestApplicationArguments() []string {
+	var args = make([]string, 0)
+	args = append(args, os.Args...)
+	args = append(args, "--procyon.application.name=\"Test Application\"")
+	args = append(args, "--procyon.server.port=8080")
+	args = append(args, "--procyon.server.port=8090")
+	args = append(args, "-debug")
+	return args
+}
+
+func TestSimpleCommandLineArgsParser_Parse(t *testing.T) {
 	commandLineParser := NewCommandLineArgsParser()
 
-	os.Args = append(os.Args, "--procyon.application.name=\"Test Application\"")
-	os.Args = append(os.Args, "--procyon.server.port=8080")
-	os.Args = append(os.Args, "--procyon.server.port=8090")
-	args, err := commandLineParser.Parse(os.Args)
+	args, err := commandLineParser.Parse(getTestApplicationArguments())
 
 	assert.Nil(t, err)
 	assert.NotNil(t, args)

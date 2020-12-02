@@ -39,7 +39,7 @@ func (watch *TaskWatch) Stop() error {
 	if !watch.isRunning {
 		return errors.New("TaskWatch is not running")
 	}
-	watch.isRunning = true
+	watch.isRunning = false
 	watch.totalTime = time.Since(watch.startTime)
 	watch.taskName = ""
 	return nil
@@ -53,7 +53,10 @@ func (watch *TaskWatch) GetTotalTime() int64 {
 	return watch.totalTime.Nanoseconds()
 }
 
-func HasFunctionSameParametersWithGivenParameters(componentType goo.Type, parameterTypes []goo.Type) bool {
+func hasFunctionSameParametersWithGivenParameters(componentType goo.Type, parameterTypes []goo.Type) bool {
+	if !componentType.IsFunction() {
+		panic("Component type must be function")
+	}
 	fun := componentType.ToFunctionType()
 	functionParameterCount := fun.GetFunctionParameterCount()
 	if parameterTypes == nil && functionParameterCount == 0 {

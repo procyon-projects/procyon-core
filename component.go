@@ -87,7 +87,7 @@ func GetComponentTypesWithParam(requestedType goo.Type, paramTypes []goo.Type) (
 				match = true
 			}
 		}
-		if match && HasFunctionSameParametersWithGivenParameters(componentType, paramTypes) {
+		if match && hasFunctionSameParametersWithGivenParameters(componentType, paramTypes) {
 			result = append(result, componentType)
 		}
 	}
