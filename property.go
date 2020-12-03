@@ -20,7 +20,7 @@ func NewPropertySources() *PropertySources {
 
 func (o *PropertySources) Get(name string) (PropertySource, bool) {
 	for _, source := range o.sources {
-		if source.GetName() == name {
+		if source != nil && source.GetName() == name {
 			return source, true
 		}
 	}
