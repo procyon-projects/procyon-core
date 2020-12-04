@@ -4,7 +4,8 @@
 ![alt text](https://goreportcard.com/badge/github.com/procyon-projects/procyon-core)
 [![codecov](https://codecov.io/gh/procyon-projects/procyon-core/branch/master/graph/badge.svg?token=F9WA517EG9)](https://codecov.io/gh/procyon-projects/procyon-core)
 [![Build Status](https://travis-ci.com/procyon-projects/procyon-core.svg?branch=master)](https://travis-ci.com/procyon-projects/procyon-core)
-
+[![Gitter](https://badges.gitter.im/procyon-projects/community.svg)](https://gitter.im/procyon-projects/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![PkgGoDev](https://pkg.go.dev/badge/procyon-projects/procyon)](https://pkg.go.dev/github.com/procyon-projects/procyon-core)
 
 This gives you a basic understanding of Procyon Core Module.
 
