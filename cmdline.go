@@ -6,6 +6,7 @@ const ProcyonApplicationCommandLinePropertySource = "ProcyonApplicationCommandLi
 const NonOptionArgsPropertyName = "nonOptionArgs"
 
 type CommandLinePropertySource interface {
+	PropertySource
 	ContainsOption(name string) bool
 	GetOptionValues(name string) []string
 	GetNonOptionArgs() []string
