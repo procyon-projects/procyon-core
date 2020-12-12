@@ -25,9 +25,9 @@ func Register(components ...Component) {
 			retType := fun.GetFunctionReturnTypes()[0].ToStructType()
 			compressorType := goo.GetType((*ComponentProcessor)(nil)).ToInterfaceType()
 			if retType.Implements(compressorType) {
-				registerComponentProcessor(typ.GetFullName(), typ)
+				registerComponentProcessor(retType.GetFullName(), typ)
 			} else {
-				registerComponentType(typ.GetFullName(), typ)
+				registerComponentType(retType.GetFullName(), typ)
 			}
 		} else {
 			panic("It supports only constructor functions")
