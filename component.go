@@ -2,7 +2,7 @@ package core
 
 import (
 	"errors"
-	"github.com/codnect/goo"
+	"github.com/procyon-projects/goo"
 )
 
 type Component interface{}

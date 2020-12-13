@@ -1,7 +1,7 @@
 package core
 
 import (
-	"github.com/codnect/goo"
+	"github.com/procyon-projects/goo"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -84,20 +84,20 @@ func TestNumberToStringConverter(t *testing.T) {
 	testConverter(t, converter, goo.GetType(0), targetType, int64(41), expectedValue)
 
 	// source type : uint, target type : string
-	testConverter(t, converter, goo.GetType(0), targetType, uint(41), expectedValue)
+	testConverter(t, converter, goo.GetType(uint(0)), targetType, uint(41), expectedValue)
 	// source type : uint8, target type : string
-	testConverter(t, converter, goo.GetType(0), targetType, uint8(41), expectedValue)
+	testConverter(t, converter, goo.GetType(uint(0)), targetType, uint8(41), expectedValue)
 	// source type : uint16, target type : string
-	testConverter(t, converter, goo.GetType(0), targetType, uint16(41), expectedValue)
+	testConverter(t, converter, goo.GetType(uint(0)), targetType, uint16(41), expectedValue)
 	// source type : uint32, target type : string
-	testConverter(t, converter, goo.GetType(0), targetType, uint32(41), expectedValue)
+	testConverter(t, converter, goo.GetType(uint(0)), targetType, uint32(41), expectedValue)
 	// source type : uint64, target type : string
-	testConverter(t, converter, goo.GetType(0), targetType, uint64(41), expectedValue)
+	testConverter(t, converter, goo.GetType(uint(0)), targetType, uint64(41), expectedValue)
 
 	// target type : float32
-	testConverter(t, converter, goo.GetType(0), targetType, float32(41.5), "41.500000")
+	testConverter(t, converter, goo.GetType(float32(0)), targetType, float32(41.5), "41.500000")
 	// target type : float64
-	testConverter(t, converter, goo.GetType(0), targetType, float64(41.5), "41.500000")
+	testConverter(t, converter, goo.GetType(float64(0)), targetType, float64(41.5), "41.500000")
 }
 
 func TestStringToBooleanConverter(t *testing.T) {
@@ -177,20 +177,20 @@ func TestDefaultTypeConverterService_NumberToStringConverter(t *testing.T) {
 	testDefaultTypeConverterService(t, converterService, goo.GetType(0), targetType, int64(41), expectedValue)
 
 	// source type : uint, target type : string
-	testDefaultTypeConverterService(t, converterService, goo.GetType(0), targetType, uint(41), expectedValue)
+	testDefaultTypeConverterService(t, converterService, goo.GetType(uint(0)), targetType, uint(41), expectedValue)
 	// source type : uint8, target type : string
-	testDefaultTypeConverterService(t, converterService, goo.GetType(0), targetType, uint8(41), expectedValue)
+	testDefaultTypeConverterService(t, converterService, goo.GetType(uint(0)), targetType, uint8(41), expectedValue)
 	// source type : uint16, target type : string
-	testDefaultTypeConverterService(t, converterService, goo.GetType(0), targetType, uint16(41), expectedValue)
+	testDefaultTypeConverterService(t, converterService, goo.GetType(uint(0)), targetType, uint16(41), expectedValue)
 	// source type : uint32, target type : string
-	testDefaultTypeConverterService(t, converterService, goo.GetType(0), targetType, uint32(41), expectedValue)
+	testDefaultTypeConverterService(t, converterService, goo.GetType(uint(0)), targetType, uint32(41), expectedValue)
 	// source type : uint64, target type : string
-	testDefaultTypeConverterService(t, converterService, goo.GetType(0), targetType, uint64(41), expectedValue)
+	testDefaultTypeConverterService(t, converterService, goo.GetType(uint(0)), targetType, uint64(41), expectedValue)
 
 	// target type : float32
-	testDefaultTypeConverterService(t, converterService, goo.GetType(0), targetType, float32(41.5), "41.500000")
+	testDefaultTypeConverterService(t, converterService, goo.GetType(float32(0)), targetType, float32(41.5), "41.500000")
 	// target type : float64
-	testDefaultTypeConverterService(t, converterService, goo.GetType(0), targetType, float64(41.5), "41.500000")
+	testDefaultTypeConverterService(t, converterService, goo.GetType(float64(0)), targetType, float64(41.5), "41.500000")
 }
 
 func TestDefaultTypeConverterService_StringToBooleanConverter(t *testing.T) {

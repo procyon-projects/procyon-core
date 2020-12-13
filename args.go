@@ -1,6 +1,6 @@
 package core
 
-import "github.com/codnect/goo"
+import "github.com/procyon-projects/goo"
 
 type CommandLineArgs struct {
 	optionArgs    map[string][]string
