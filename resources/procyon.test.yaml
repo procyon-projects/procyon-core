@@ -1,0 +1,9 @@
+procyon:
+  application:
+    name: "Procyon Test Application"
+
+server:
+  port: 8095
+
+logging:
+  level: INFO
