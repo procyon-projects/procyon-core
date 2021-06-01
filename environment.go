@@ -27,6 +27,7 @@ func NewStandardEnvironment() StandardEnvironment {
 		propertySources:  NewPropertySources(),
 		converterService: NewDefaultTypeConverterService(),
 	}
+
 	env.propertyResolver = NewSimplePropertyResolver(env.propertySources)
 	return env
 }
@@ -66,6 +67,7 @@ func NewSystemEnvironmentPropertySource() SystemEnvironmentPropertySource {
 
 	for _, property := range environmentProperties {
 		index := strings.Index(property, "=")
+
 		if index != -1 {
 			propertySource.environmentProperties[property[:index]] = property[index+1:]
 		}

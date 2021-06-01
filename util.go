@@ -2,7 +2,6 @@ package core
 
 import (
 	"errors"
-	"github.com/procyon-projects/goo"
 	"strconv"
 	"time"
 	"unsafe"
@@ -31,6 +30,7 @@ func (watch *TaskWatch) Start() error {
 	if watch.isRunning {
 		return errors.New("TaskWatch is already running")
 	}
+
 	watch.startTime = time.Now()
 	watch.isRunning = true
 	return nil
@@ -40,6 +40,7 @@ func (watch *TaskWatch) Stop() error {
 	if !watch.isRunning {
 		return errors.New("TaskWatch is not running")
 	}
+
 	watch.isRunning = false
 	watch.totalTime = time.Since(watch.startTime)
 	watch.taskName = ""
@@ -52,26 +53,6 @@ func (watch *TaskWatch) IsRunning() bool {
 
 func (watch *TaskWatch) GetTotalTime() int64 {
 	return watch.totalTime.Nanoseconds()
-}
-
-func hasFunctionSameParametersWithGivenParameters(componentType goo.Type, parameterTypes []goo.Type) bool {
-	if !componentType.IsFunction() {
-		panic("Component type must be function")
-	}
-	fun := componentType.ToFunctionType()
-	functionParameterCount := fun.GetFunctionParameterCount()
-	if parameterTypes == nil && functionParameterCount == 0 {
-		return true
-	} else if len(parameterTypes) != functionParameterCount || parameterTypes == nil && functionParameterCount != 0 {
-		return false
-	}
-	inputParameterTypes := fun.GetFunctionParameterTypes()
-	for index, inputParameterType := range inputParameterTypes {
-		if !inputParameterType.Equals(parameterTypes[index]) {
-			return false
-		}
-	}
-	return true
 }
 
 func BytesToStr(bytes []byte) string {

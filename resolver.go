@@ -17,18 +17,24 @@ func NewSimplePropertyResolver(sources *PropertySources) *SimplePropertyResolver
 
 func (resolver *SimplePropertyResolver) ContainsProperty(name string) bool {
 	for _, propertySource := range resolver.sources.GetPropertyResources() {
+
 		if propertySource.ContainsProperty(name) {
 			return true
 		}
+
 	}
+
 	return false
 }
 
 func (resolver *SimplePropertyResolver) GetProperty(name string, defaultValue string) interface{} {
 	for _, propertySource := range resolver.sources.GetPropertyResources() {
+
 		if propertySource.ContainsProperty(name) {
-			return propertySource.GetProperty(name).(string)
+			return propertySource.GetProperty(name)
 		}
+
 	}
+
 	return defaultValue
 }

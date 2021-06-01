@@ -20,9 +20,11 @@ func NewPropertySources() *PropertySources {
 
 func (o *PropertySources) Get(name string) (PropertySource, bool) {
 	for _, source := range o.sources {
+
 		if source != nil && source.GetName() == name {
 			return source, true
 		}
+
 	}
 	return nil, false
 }
@@ -34,14 +36,17 @@ func (o *PropertySources) Add(propertySource PropertySource) {
 
 func (o *PropertySources) Remove(name string) PropertySource {
 	source, index := o.findPropertySourceByName(name)
+
 	if index != -1 {
 		o.sources = append(o.sources[:index], o.sources[index+1:]...)
 	}
+
 	return source
 }
 
 func (o *PropertySources) Replace(name string, propertySource PropertySource) {
 	_, index := o.findPropertySourceByName(name)
+
 	if index != -1 {
 		o.sources[index] = propertySource
 	}
@@ -51,7 +56,9 @@ func (o *PropertySources) RemoveIfPresent(propertySource PropertySource) {
 	if propertySource == nil {
 		return
 	}
+
 	_, index := o.findPropertySourceByName(propertySource.GetName())
+
 	if index != -1 {
 		o.sources = append(o.sources[:index], o.sources[index+1:]...)
 	}
@@ -59,10 +66,13 @@ func (o *PropertySources) RemoveIfPresent(propertySource PropertySource) {
 
 func (o *PropertySources) findPropertySourceByName(name string) (PropertySource, int) {
 	for index, source := range o.sources {
+
 		if source.GetName() == name {
 			return source, index
 		}
+
 	}
+
 	return nil, -1
 }
 

@@ -20,18 +20,23 @@ var (
 func Register(components ...Component) {
 	for _, component := range components {
 		typ := goo.GetType(component)
+
 		if isSupportComponent(typ) {
+
 			fun := typ.ToFunctionType()
 			retType := fun.GetFunctionReturnTypes()[0].ToStructType()
 			compressorType := goo.GetType((*ComponentProcessor)(nil)).ToInterfaceType()
+
 			if retType.Implements(compressorType) {
 				registerComponentProcessor(retType.GetFullName(), typ)
 			} else {
 				registerComponentType(retType.GetFullName(), typ)
 			}
+
 		} else {
 			panic("It supports only constructor functions")
 		}
+
 	}
 }
 
@@ -39,6 +44,7 @@ func registerComponentType(name string, typ goo.Type) {
 	if _, ok := componentTypes[name]; ok {
 		panic("You have already registered the same component : " + name)
 	}
+
 	componentTypes[name] = typ
 }
 
@@ -46,21 +52,26 @@ func registerComponentProcessor(name string, typ goo.Type) {
 	if _, ok := componentProcessor[name]; ok {
 		panic("You have already registered the same component processor : " + name)
 	}
+
 	componentProcessor[name] = typ
 }
 
 func isSupportComponent(typ goo.Type) bool {
 	if typ.IsFunction() {
 		fun := typ.ToFunctionType()
+
 		if fun.GetFunctionReturnTypeCount() != 1 {
 			panic("Constructor functions are only supported, that why's your function must have only one return type")
 		}
 		retType := fun.GetFunctionReturnTypes()[0]
+
 		if !retType.IsStruct() {
 			panic("Constructor functions must only return struct instances : " + retType.GetPackageFullName())
 		}
+
 		return true
 	}
+
 	return false
 }
 
@@ -72,25 +83,33 @@ func GetComponentTypesWithParam(requestedType goo.Type, paramTypes []goo.Type) (
 	if requestedType == nil {
 		return nil, errors.New("type must not be null")
 	}
+
 	if !requestedType.IsStruct() && !requestedType.IsInterface() {
 		panic("Requested type must be only interface or struct")
 	}
+
 	result := make([]goo.Type, 0)
+
 	for _, componentType := range componentTypes {
 		fun := componentType.ToFunctionType()
 		returnType := fun.GetFunctionReturnTypes()[0].ToStructType()
 		match := false
+
 		if requestedType.IsInterface() && returnType.Implements(requestedType.ToInterfaceType()) {
 			match = true
 		} else if requestedType.IsStruct() {
+
 			if requestedType.GetGoType() == returnType.GetGoType() || requestedType.ToStructType().EmbeddedStruct(returnType) {
 				match = true
 			}
+
 		}
+
 		if match && hasFunctionSameParametersWithGivenParameters(componentType, paramTypes) {
 			result = append(result, componentType)
 		}
 	}
+
 	return result, nil
 }
 
@@ -98,10 +117,13 @@ func ForEachComponentType(callback func(string, goo.Type) error) (err error) {
 	for componentName := range componentTypes {
 		component := componentTypes[componentName]
 		err = callback(componentName, component)
+
 		if err != nil {
 			break
 		}
+
 	}
+
 	return nil
 }
 
@@ -109,9 +131,36 @@ func ForEachComponentProcessor(callback func(string, goo.Type) error) (err error
 	for componentProcessorName := range componentProcessor {
 		componentProcessor := componentProcessor[componentProcessorName]
 		err = callback(componentProcessorName, componentProcessor)
+
 		if err != nil {
 			break
 		}
+
 	}
+
 	return
+}
+
+func hasFunctionSameParametersWithGivenParameters(componentType goo.Type, parameterTypes []goo.Type) bool {
+	if !componentType.IsFunction() {
+		panic("Component type must be function")
+	}
+
+	fun := componentType.ToFunctionType()
+	functionParameterCount := fun.GetFunctionParameterCount()
+
+	if parameterTypes == nil && functionParameterCount == 0 {
+		return true
+	} else if len(parameterTypes) != functionParameterCount || parameterTypes == nil && functionParameterCount != 0 {
+		return false
+	}
+
+	inputParameterTypes := fun.GetFunctionParameterTypes()
+	for index, inputParameterType := range inputParameterTypes {
+		if !inputParameterType.Equals(parameterTypes[index]) {
+			return false
+		}
+	}
+
+	return true
 }
