@@ -151,6 +151,7 @@ func (cs *DefaultTypeConverterService) Convert(source interface{}, sourceTyp goo
 		}
 	}
 	cs.mu.Unlock()
+
 	if typConverter != nil {
 		result, err = typConverter.Convert(source, sourceTyp, targetTyp)
 	}
@@ -161,6 +162,7 @@ func (cs *DefaultTypeConverterService) RegisterConverter(converter TypeConverter
 	if converter == nil {
 		panic("converter must not be nil")
 	}
+
 	cs.mu.Lock()
 	cs.converters[goo.GetType(converter).GetFullName()] = converter
 	cs.mu.Unlock()

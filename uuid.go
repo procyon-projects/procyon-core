@@ -31,6 +31,7 @@ var (
 
 func init() {
 	iname, addr := getHardwareInterface()
+
 	if iname != "" && addr != nil {
 		copy(nodeID[:], addr)
 	} else {
@@ -40,12 +41,15 @@ func init() {
 	if clockSeq == 0 {
 		var b [2]byte
 		randomBits(b[:])
+
 		seq := int(b[0])<<8 | int(b[1])
 		oldSeq := clockSeq
 		clockSeq = uint16(seq&0x3fff) | 0x8000
+
 		if oldSeq != clockSeq {
 			lastTime = 0
 		}
+
 	}
 }
 
@@ -54,10 +58,12 @@ const hexTable = "0123456789abcdef"
 func GenerateUUID(uuidBuffer []byte) {
 	timeMu.Lock()
 	now := uint64(time.Now().UnixNano()/100) + g1582ns100
+
 	if now <= lastTime {
 		clockSeq = ((clockSeq + 1) & 0x3fff) | 0x8000
 
 	}
+
 	lastTime = now
 	timeMu.Unlock()
 
@@ -138,13 +144,17 @@ func GenerateUUID(uuidBuffer []byte) {
 
 func getHardwareInterface() (string, []byte) {
 	interfaces, err := net.Interfaces()
+
 	if err != nil {
 		return "", nil
 	}
+
 	for _, ifs := range interfaces {
+
 		if len(ifs.HardwareAddr) >= 6 {
 			return ifs.Name, ifs.HardwareAddr
 		}
+
 	}
 	return "", nil
 }

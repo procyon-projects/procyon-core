@@ -1,0 +1,5 @@
+procyon:
+  datasource:
+    url: test-url
+    username: test-username
+    password: test-password

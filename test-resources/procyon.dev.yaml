@@ -1,0 +1,9 @@
+procyon:
+  application:
+    name: "Procyon Dev Application"
+
+server:
+  port: 8097
+
+logging:
+  level: INFO

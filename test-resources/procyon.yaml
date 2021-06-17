@@ -1,0 +1,9 @@
+procyon:
+  application:
+    name: "Procyon Application"
+
+server:
+  port: 8091
+
+logging:
+  level: DEBUG
