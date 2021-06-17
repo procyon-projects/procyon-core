@@ -16,7 +16,7 @@ func TestAppFilePropertySource(t *testing.T) {
 func TestAppFileParser_Parse(t *testing.T) {
 	parser := NewAppFileParser()
 
-	filePaths := []string{"resources/procyon.test.yaml", "resources/procyon.db.yaml"}
+	filePaths := []string{"test-resources/procyon.test.yaml", "test-resources/procyon.db.yaml"}
 
 	propertyMap, err := parser.Parse(filePaths)
 	assert.NoError(t, err)
@@ -31,5 +31,39 @@ func TestAppFileParser_Parse(t *testing.T) {
 	assert.Contains(t, propertyMap, "server.port")
 	assert.Equal(t, 8095, propertyMap["server.port"])
 
-	// check the properties in procyon.db.yaml
+	assert.Contains(t, propertyMap, "procyon.datasource.url")
+	assert.Equal(t, "test-url", propertyMap["procyon.datasource.url"])
+
+	assert.Contains(t, propertyMap, "procyon.datasource.username")
+	assert.Equal(t, "test-username", propertyMap["procyon.datasource.username"])
+
+	assert.Contains(t, propertyMap, "procyon.datasource.password")
+	assert.Equal(t, "test-password", propertyMap["procyon.datasource.password"])
+}
+
+func TestAppFileParser_ContainsProperty(t *testing.T) {
+	propertySource := NewAppFilePropertySource("dev, db")
+	assert.True(t, propertySource.ContainsProperty("procyon.application.name"))
+	assert.False(t, propertySource.ContainsProperty("procyon.server.timeout"))
+}
+
+func TestAppFileParser_GetProperty(t *testing.T) {
+	propertySource := NewAppFilePropertySource("dev")
+	assert.NotNil(t, propertySource.GetProperty("procyon.application.name"))
+	assert.Equal(t, "Procyon Dev Application", propertySource.GetProperty("procyon.application.name"))
+}
+
+func TestAppFileParser_GetPropertyNames(t *testing.T) {
+	propertySource := NewAppFilePropertySource("dev")
+	assert.NotNil(t, propertySource.GetPropertyNames())
+}
+
+func TestAppFileParser_GetName(t *testing.T) {
+	propertySource := NewAppFilePropertySource("dev")
+	assert.Equal(t, ProcyonAppFilePropertySource, propertySource.GetName())
+}
+
+func TestAppFileParser_GetSource(t *testing.T) {
+	propertySource := NewAppFilePropertySource("dev")
+	assert.NotNil(t, propertySource.GetSource())
 }

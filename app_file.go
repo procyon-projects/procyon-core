@@ -11,7 +11,7 @@ import (
 const ProcyonAppFilePropertySource = "ProcyonAppFilePropertySource"
 
 const ProcyonAppFilePrefix = "procyon"
-const ProcyonAppFilePath = "resources/"
+const ProcyonAppFilePath = "test-resources/"
 const ProcyonAppFileSuffix = ".yaml"
 const ProcyonDefaultProfile = "default"
 
